@@ -1,0 +1,3 @@
+import{z}from"zod";import{getEnv}from"@/lib/env";import{errorResponse}from"@/lib/errors";import{assertSameOrigin}from"@/lib/security";import{requireSession}from"@/server/auth";import{updateCaseStatus}from"@/server/backoffice";
+const schema=z.object({status:z.string()});export async function PATCH(request:Request,{params}:{params:Promise<{caseId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["REVIEWER","ADMIN"]);updateCaseStatus(actor,(await params).caseId,schema.parse(await request.json()).status);return Response.json({ok:true});}catch(error){return errorResponse(error)}}
+

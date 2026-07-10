@@ -1,0 +1,3 @@
+import{z}from"zod";import{getEnv}from"@/lib/env";import{errorResponse}from"@/lib/errors";import{assertSameOrigin}from"@/lib/security";import{requireSession}from"@/server/auth";import{assignReviewer}from"@/server/backoffice";
+const schema=z.object({reviewerId:z.string().min(1).max(100)});export async function POST(request:Request,{params}:{params:Promise<{caseId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const admin=await requireSession(["ADMIN"]);assignReviewer(admin,(await params).caseId,schema.parse(await request.json()).reviewerId);return Response.json({ok:true});}catch(error){return errorResponse(error)}}
+

@@ -98,6 +98,14 @@ h3 { margin: 0 0 .65rem; }
 .download-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; margin-top: 1rem; }
 .download-list a { display: flex; flex-direction: column; box-shadow: none; }
 .download-list span { color: var(--muted); font-size: .85rem; }
+.metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .7rem; margin: 1rem 0 2rem; }
+.metric-grid .card { display: flex; flex-direction: column; box-shadow: none; }
+.metric-grid strong { font-size: 1.8rem; }
+.admin-table, .audit-list { display: grid; gap: .6rem; margin-bottom: 2rem; }
+.admin-table .card { display: flex; justify-content: space-between; align-items: center; box-shadow: none; }
+.admin-table select { display: block; margin-top: .3rem; padding: .55rem; border: 1px solid var(--line); border-radius: .5rem; }
+.audit-list > div { display: grid; grid-template-columns: 12rem 1fr 1fr; gap: .7rem; padding: .6rem; border-bottom: 1px solid var(--line); font-size: .85rem; }
+.plan-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .8rem; margin: 1rem 0; }
 .steps { display: grid; gap: .8rem; }
 .step { display: flex; gap: .9rem; align-items: flex-start; }
 .step-number { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--brand-strong); font-weight: 800; }
@@ -113,5 +121,7 @@ h3 { margin: 0 0 .65rem; }
   .page-head { display: grid; }
   .file-list a { align-items: flex-start; flex-direction: column; }
   .review-row { align-items: flex-start; flex-direction: column; }
-  .matrix-list, .download-list { grid-template-columns: 1fr; }
+  .matrix-list, .download-list, .metric-grid, .plan-grid { grid-template-columns: 1fr; }
+  .admin-table .card { align-items: flex-start; flex-direction: column; }
+  .audit-list > div { grid-template-columns: 1fr; }
 }

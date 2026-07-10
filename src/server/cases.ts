@@ -42,6 +42,8 @@ export function getCaseForActor(actor: SessionUser, caseId: string): CaseRow {
     audit(actor, "CASE_READ", "CASE", caseId, "DENIED");
     throw new AppError("CASE_NOT_FOUND", "案件不存在或无权访问", 404);
   }
+  if (actor.role === "ADMIN" || actor.role === "REVIEWER") audit(actor, "CASE_READ", "CASE", caseId, "SUCCESS");
   return row;
 }
 
+export const caseStatuses = ["DRAFT","PENDING_UPLOAD","PENDING_EXTRACTION","EXTRACTING","PENDING_USER_CONFIRMATION","PENDING_TIMELINE_CONFIRMATION","PENDING_GENERATION","PENDING_MANUAL_REVIEW","WAITING_MORE_MATERIALS","COMPLETED","CLOSED","PENDING_DELETION","DELETED"] as const;
