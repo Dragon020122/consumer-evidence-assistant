@@ -93,6 +93,11 @@ h3 { margin: 0 0 .65rem; }
 .timeline-item:last-child::before { display: none; }
 .timeline-dot { z-index: 1; width: 2rem; height: 2rem; border-radius: 50%; background: var(--brand); color: white; display: grid; place-items: center; font-weight: 800; }
 .timeline-item .card { margin-bottom: 1rem; box-shadow: none; }
+.matrix-list, .gap-list, .preview-stack { display: grid; gap: .8rem; margin-top: 1rem; }
+.matrix-list { grid-template-columns: repeat(2, 1fr); }
+.download-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; margin-top: 1rem; }
+.download-list a { display: flex; flex-direction: column; box-shadow: none; }
+.download-list span { color: var(--muted); font-size: .85rem; }
 .steps { display: grid; gap: .8rem; }
 .step { display: flex; gap: .9rem; align-items: flex-start; }
 .step-number { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--brand-strong); font-weight: 800; }
@@ -108,4 +113,5 @@ h3 { margin: 0 0 .65rem; }
   .page-head { display: grid; }
   .file-list a { align-items: flex-start; flex-direction: column; }
   .review-row { align-items: flex-start; flex-direction: column; }
+  .matrix-list, .download-list { grid-template-columns: 1fr; }
 }

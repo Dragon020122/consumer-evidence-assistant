@@ -1,0 +1,3 @@
+import{notFound,redirect}from"next/navigation";import{DownloadCenter}from"@/components/DownloadCenter";import{getSessionUser}from"@/server/auth";import{getCaseForActor}from"@/server/cases";import{listGenerated}from"@/server/export";
+export const dynamic="force-dynamic";export default async function DownloadsPage({params}:{params:Promise<{caseId:string}>}){const actor=await getSessionUser();if(!actor)redirect("/login");const{caseId}=await params;try{getCaseForActor(actor,caseId)}catch{notFound()}return <div><div className="eyebrow">步骤 9 / 9</div><h1 className="page-title">下载中心</h1><p className="lead">包含 6 份中文 PDF、完整材料包、精简提交版和完整留存版。</p><DownloadCenter caseId={caseId} initial={listGenerated(actor,caseId)}/></div>}
+

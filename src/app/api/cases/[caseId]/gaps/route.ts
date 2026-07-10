@@ -1,0 +1,3 @@
+import{errorResponse}from"@/lib/errors";import{detectMaterialGaps}from"@/lib/gaps";import{requireSession}from"@/server/auth";import{getCaseForActor}from"@/server/cases";import{listExtractions}from"@/server/extraction";import{listEvidence}from"@/server/storage";import{listTimeline}from"@/server/timeline";
+export async function GET(_:Request,{params}:{params:Promise<{caseId:string}>}){try{const actor=await requireSession();const caseId=(await params).caseId;const item=getCaseForActor(actor,caseId);return Response.json({gaps:detectMaterialGaps(listEvidence(actor,caseId),listExtractions(actor,caseId),listTimeline(actor,caseId),JSON.parse(item.detailsJson))});}catch(error){return errorResponse(error)}}
+

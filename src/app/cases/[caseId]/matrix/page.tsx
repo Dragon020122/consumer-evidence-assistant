@@ -1,2 +1,3 @@
-export default function MatrixPlaceholder(){return <div><div className="eyebrow">步骤 6 / 9</div><h1 className="page-title">事实—证据矩阵</h1><div className="empty card">矩阵将在下一阶段根据已确认时间线生成。</div></div>}
+import{notFound,redirect}from"next/navigation";import{MatrixPanel}from"@/components/MatrixPanel";import{getSessionUser}from"@/server/auth";import{getCaseForActor}from"@/server/cases";import{listMatrix}from"@/server/matrix";
+export const dynamic="force-dynamic";export default async function MatrixPage({params}:{params:Promise<{caseId:string}>}){const actor=await getSessionUser();if(!actor)redirect("/login");const{caseId}=await params;try{getCaseForActor(actor,caseId)}catch{notFound()}return <div><div className="eyebrow">步骤 6 / 9</div><h1 className="page-title">事实—证据矩阵</h1><p className="lead">矩阵说明材料支持程度和缺口，不对事实作法律认定。</p><MatrixPanel caseId={caseId} initial={listMatrix(actor,caseId)}/></div>}
 
