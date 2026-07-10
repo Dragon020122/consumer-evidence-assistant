@@ -1,0 +1,5 @@
+import { z } from "zod";
+export const timelineEventInputSchema=z.object({eventDate:z.string().date().nullable(),dateEnd:z.string().date().nullable().default(null),description:z.string().trim().min(2).max(1000),eventType:z.enum(["PAYMENT","SERVICE","REFUND_REQUEST","MERCHANT_RESPONSE","OTHER"]),amountYuan:z.number().min(0).max(10_000_000).nullable(),sourceType:z.enum(["EVIDENCE","USER_STATEMENT"]),evidenceIds:z.array(z.string().uuid()).max(20),isUserStatement:z.boolean()}).superRefine((value,ctx)=>{if(value.sourceType==="EVIDENCE"&&value.evidenceIds.length===0)ctx.addIssue({code:"custom",message:"证据支持事件必须关联原始证据"});if(value.evidenceIds.length===0&&!value.isUserStatement)ctx.addIssue({code:"custom",message:"无证据事件必须标记为用户陈述"});});
+export type TimelineEventInput=z.infer<typeof timelineEventInputSchema>;
+export function sortTimeline<T extends {eventDate:string|null;sortOrder?:number}>(events:T[]):T[]{return [...events].sort((a,b)=>{if(!a.eventDate)return 1;if(!b.eventDate)return-1;return a.eventDate.localeCompare(b.eventDate)});}
+

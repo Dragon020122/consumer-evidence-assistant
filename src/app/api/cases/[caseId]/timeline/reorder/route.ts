@@ -1,0 +1,3 @@
+import {z}from"zod";import{getEnv}from"@/lib/env";import{errorResponse}from"@/lib/errors";import{assertSameOrigin}from"@/lib/security";import{requireSession}from"@/server/auth";import{reorderTimeline}from"@/server/timeline";
+const schema=z.object({eventIds:z.array(z.string().uuid()).max(200)});export async function POST(request:Request,{params}:{params:Promise<{caseId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["USER","ADMIN"]);return Response.json({timeline:reorderTimeline(actor,(await params).caseId,schema.parse(await request.json()).eventIds)});}catch(error){return errorResponse(error)}}
+

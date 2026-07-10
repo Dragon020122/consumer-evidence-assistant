@@ -1,0 +1,3 @@
+import { notFound,redirect } from "next/navigation";import { getSessionUser } from "@/server/auth";import { getCaseForActor } from "@/server/cases";import { listTimeline } from "@/server/timeline";import { TimelineReview } from "@/components/TimelineReview";
+export const dynamic="force-dynamic";export default async function TimelinePage({params}:{params:Promise<{caseId:string}>}){const user=await getSessionUser();if(!user)redirect("/login");const{caseId}=await params;try{getCaseForActor(user,caseId)}catch{notFound()}return <div><div className="eyebrow">步骤 5 / 9</div><h1 className="page-title">核对事件时间线</h1><p className="lead">证据支持事件可返回原文件；没有客观证据的内容必须标为“用户陈述”。确认后才可生成最终材料。</p><TimelineReview caseId={caseId} initial={listTimeline(user,caseId)}/></div>}
+

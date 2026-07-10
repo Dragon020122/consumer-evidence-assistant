@@ -1,0 +1,3 @@
+import {describe,expect,it}from"vitest";import{extractionPayloadSchema,parseDate,parseMoney}from"@/lib/extraction";
+describe("结构化提取",()=>{it("解析金额",()=>{expect(parseMoney("实付人民币 2,999.00 元")).toBe(2999);expect(parseMoney("未写金额")).toBeNull()});it("解析并校验日期",()=>{expect(parseDate("支付日 2026年2月28日")).toBe("2026-02-28");expect(parseDate("2026-02-31")).toBeNull()});it("拒绝没有人工确认标记的空值",()=>{expect(()=>extractionPayloadSchema.parse({evidenceId:"5a2f39c1-b25d-4e44-b39d-b9b720305e85",classification:"OTHER",provider:"bad",requiresManualProcessing:false,fields:[{fieldName:"date",value:null,evidenceId:"5a2f39c1-b25d-4e44-b39d-b9b720305e85",sourcePageOrImage:"1",sourceLocator:"x",confidence:0,needsHumanConfirmation:false}]})).toThrow()})});
+
