@@ -7,6 +7,10 @@ const schema = z.object({
   GENERATED_STORAGE_PATH: z.string().default("storage/generated"),
   DEV_AUTH_ENABLED: z.enum(["true", "false"]).default("false"),
   DEV_AUTH_SECRET: z.string().min(32).optional(),
+  DEV_USER_PASSWORD: z.string().min(8).optional(),
+  DEV_REVIEWER_PASSWORD: z.string().min(8).optional(),
+  DEV_ADMIN_PASSWORD: z.string().min(8).optional(),
+  APP_URL: z.string().url().default("http://localhost:3000"),
   EXTRACTION_PROVIDER: z.enum(["mock", "external"]).default("mock"),
   OCR_PROVIDER: z.enum(["mock", "external"]).default("mock"),
   MODEL_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
@@ -26,4 +30,3 @@ export function getEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
   }
   return value;
 }
-
