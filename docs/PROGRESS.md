@@ -38,6 +38,7 @@
 - 开发登录修复：确认 README 的 `change-me-*` 只是 `.env.example` 示例，而当前 `.env.local` 使用 `demo-*-2026`，数据库哈希匹配本地环境但不匹配 README 示例。README 已改为以 `.env.local` 为唯一密码来源，新增 `npm run auth:doctor`，种子已幂等重建。登录专项测试 3/3、全量测试 15 文件/33 测试、最终构建均通过；真实登录接口以当前 reviewer 环境密码返回 HTTP 200、`REVIEWER` 和会话 Cookie，旧示例密码返回 401。
 - 角色交互修复：新增统一角色导航、中文身份账号菜单、服务端退出与失败重试、角色默认落点、安全 return-to、受保护页面渲染前判权和复核员案件只读界面；未修改既有 API 授权范围。`npm run auth:doctor`、lint、typecheck、生产构建通过，全量测试 17 文件/45 测试通过。
 - 阶段 16 阶段性复验：`npm run demo:assets` 生成 8/8 份资料并人工检查 PNG 水印；数据库迁移和幂等种子通过；lint、typecheck 通过；全量测试 19 文件/50 测试通过。新增 E2E 覆盖字段清空、八份载入、跨用户拒绝、Mock 提取默认待确认、确认、时间线、矩阵、缺口、9 个导出和仅当前用户隔离重置。
+- 阶段 16 最终门禁：`npm run auth:doctor`、`npm run lint`、`npm run typecheck`、`npm run security:check`、`npm run test`、`npm run test:e2e`、`npm run build` 全部通过；全量为 19 文件/50 测试，独立 E2E 为 3 文件/5 测试，新增演示页面/API 路由已进入 Next.js 生产构建。未部署、未接入正式支付或生产服务。
 
 ## 已知限制
 
