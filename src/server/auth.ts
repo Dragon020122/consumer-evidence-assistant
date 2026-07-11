@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 import { getEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { signValue, verifyPassword } from "@/lib/security";
-import type { Role } from "@/lib/schemas";
+import { roles, type Role } from "@/lib/schemas";
 
 const COOKIE_NAME = "evidence_session";
 
@@ -45,9 +45,10 @@ export async function authenticate(email: string, password: string): Promise<Ses
   }
   const row = getDb().prepare(
     "SELECT id, email, display_name AS displayName, role, password_hash AS passwordHash FROM users WHERE email = ?"
-  ).get(email.toLowerCase()) as (SessionUser & { passwordHash: string }) | undefined;
+  ).get(email.toLowerCase()) as ({ id:string;email:string;displayName:string;role:string;passwordHash:string }) | undefined;
   if (!row || !verifyPassword(password, row.passwordHash)) throw new AppError("INVALID_CREDENTIALS", "账号或密码不正确", 401);
-  return { id: row.id, email: row.email, displayName: row.displayName, role: row.role };
+  if (!roles.includes(row.role as Role)) throw new AppError("INVALID_ACCOUNT_ROLE", "账号角色配置无效", 403);
+  return { id: row.id, email: row.email, displayName: row.displayName, role: row.role as Role };
 }
 
 export async function createSession(user: SessionUser): Promise<void> {

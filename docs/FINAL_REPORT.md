@@ -22,7 +22,7 @@
 
 ## 测试与安全结果
 
-- 最近成功全量测试：14 文件、30 测试；包含单元、集成和虚构健身 2999 元完整 E2E。
+- 最近成功全量测试：15 文件、33 测试；包含开发登录、单元、集成和虚构健身 2999 元完整 E2E。
 - 最近 ESLint、TypeScript、仓库密钥扫描：通过。
 - npm 生产依赖审计：0 漏洞。
 - 最终 Next 生产构建：通过；`npm run start` 正常启动，首页返回 HTTP 200，CSP 与防嵌入响应头生效。
@@ -38,7 +38,7 @@ npm run db:seed
 npm run dev
 ```
 
-地址：`http://localhost:3000`。虚构账号和密码见 README；生产不得启用开发登录。
+地址：`http://localhost:3000`。虚构账号见 README，密码以当前 `.env.local` 的 `DEV_*_PASSWORD` 为唯一来源；运行 `npm run auth:doctor` 可确认数据库哈希是否同步。生产不得启用开发登录。
 
 ## Git 提交
 

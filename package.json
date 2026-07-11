@@ -18,6 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
+    "auth:doctor": "tsx scripts/auth-doctor.ts",
     "db:reset": "tsx scripts/reset-demo.ts",
     "cleanup": "tsx scripts/cleanup-expired.ts",
     "security:check": "node scripts/security-check.mjs",

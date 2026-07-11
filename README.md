@@ -11,18 +11,21 @@ npm install
 copy .env.example .env.local
 npm run db:migrate
 npm run db:seed
+npm run auth:doctor
 npm run dev
 ```
 
-访问 `http://localhost:3000`。开发登录仅在 `DEV_AUTH_ENABLED=true` 且非生产环境时开放；账号与密码见本地种子命令输出，密码来自环境变量，不写入前端。
+访问 `http://localhost:3000`。开发登录仅在 `DEV_AUTH_ENABLED=true` 且非生产环境时开放；密码来自服务端环境变量，不写入前端。
 
 ### 虚构演示账号
 
-复制示例环境变量且未修改开发密码时：
+密码的唯一真实来源是当前机器的 `.env.local`，README 不覆盖本地环境变量。账号与变量对应关系：
 
-- 普通用户：`user@demo.local` / `change-me-user`
-- 人工复核员：`reviewer@demo.local` / `change-me-reviewer`
-- 管理员：`admin@demo.local` / `change-me-admin`
+- 普通用户：`user@demo.local` ← `DEV_USER_PASSWORD`
+- 人工复核员：`reviewer@demo.local` ← `DEV_REVIEWER_PASSWORD`
+- 管理员：`admin@demo.local` ← `DEV_ADMIN_PASSWORD`
+
+如果 `.env.local` 是刚从 `.env.example` 原样复制的，示例密码依次为 `change-me-user`、`change-me-reviewer`、`change-me-admin`；若本地文件已修改，必须使用修改后的值。每次变更密码环境变量后都要执行 `npm run db:seed`，使数据库 scrypt 哈希与当前环境一致。可运行 `npm run auth:doctor` 检查环境、账号、角色和密码哈希是否一致，该命令不会输出密码值。
 
 这些账号只可用于本地虚构数据。启动公开测试前必须更换三个密码和 `DEV_AUTH_SECRET`。种子同时创建 `demo-case-gym`（虚构健身年卡 2999 元案例）和四个不收款的测试套餐。
 
@@ -51,6 +54,7 @@ npm run test:integration
 npm run test:e2e
 npm run build
 npm run security:check
+npm run auth:doctor
 npm run check
 npm run cleanup
 ```

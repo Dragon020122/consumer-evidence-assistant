@@ -33,6 +33,7 @@
 - 最新 `npm run lint`、`npm run typecheck`、`npm run security:check`：通过。
 - 额度恢复后最终复验：`npm run test` 通过（14 文件、30 测试）；`npm run build` 完整通过；移除不必要的 standalone 输出后 `npm run start` 正常启动，首页 HTTP 200、标题文案、CSP 和 `X-Frame-Options: DENY` 已确认。
 - Chrome 扩展已连接，但企业网络策略禁止访问 `localhost`，因此未执行截图式视觉验收；未改用其他浏览器接口绕过。交互路径由完整 E2E 覆盖。
+- 开发登录修复：确认 README 的 `change-me-*` 只是 `.env.example` 示例，而当前 `.env.local` 使用 `demo-*-2026`，数据库哈希匹配本地环境但不匹配 README 示例。README 已改为以 `.env.local` 为唯一密码来源，新增 `npm run auth:doctor`，种子已幂等重建。登录专项测试 3/3、全量测试 15 文件/33 测试、最终构建均通过；真实登录接口以当前 reviewer 环境密码返回 HTTP 200、`REVIEWER` 和会话 Cookie，旧示例密码返回 401。
 
 ## 已知限制
 
