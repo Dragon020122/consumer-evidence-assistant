@@ -47,7 +47,7 @@ npm run dev
 - `9bef5af` `feat: add validated extraction confirmation and timeline`
 - `1735080` `feat: generate evidence matrix drafts PDFs and ZIPs`
 - `21c601c` `feat: add review admin and test plan workflows`
-- 删除/清理/最终安全阶段将在本报告收口后创建本地提交；最终回复列出实际提交哈希。
+- `a9e5bb0` `feat: complete deletion security and end-to-end QA`
 
 ## 已知限制与上线前事项
 
