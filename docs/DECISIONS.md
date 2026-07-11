@@ -20,3 +20,14 @@
 
 只实现套餐/订单状态结构和管理员测试开通，不采集银行卡或真实支付信息。
 
+## ADR-006：演示模式采用服务端双重守卫
+
+演示功能只有在 `DEMO_MODE_ENABLED=true` 且 `NODE_ENV` 不是 `production` 时可用。页面可见性只是体验层，所有创建、载入、重置和模拟处理接口必须再次执行同一服务端守卫及案件所有权校验。演示资料由仓库脚本重复生成，全部使用虚构信息和醒目标记。
+
+## ADR-007：字段确认与证据支持正交存储
+
+案件详情字段使用 `EMPTY/USER_CONFIRMED/AI_PENDING/AI_CONFIRMED/USER_EDITED/UNABLE_TO_CONFIRM/CONFLICT` 表达内容确认来源，并使用独立 `DIRECT/PARTIAL/USER_STATEMENT/NONE/CONFLICT` 表达证据支持。旧 `CONFIRMED/PENDING/UNKNOWN` 在读取与迁移时分别兼容映射，避免历史测试数据失效。AI 提取仍保留逐条来源和人工确认审计。
+
+## ADR-008：派生工作流而非复制状态机
+
+数据库 `cases.status` 继续表达后台处理阶段；普通用户八步导航由案件字段、证据类别、提取、时间线、矩阵和导出实时派生。这样避免两套状态机漂移，并能同时显示“进行中、已完成、需补充、存在冲突”。材料缺口默认软提醒，只有缺少技术上无法继续的输入时才硬阻断。
