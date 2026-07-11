@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { TimelineRow } from "@/server/timeline";
+import type { TimelineEventDTO as TimelineRow } from "@/lib/dto";
 
 export function TimelineReview({ caseId, initial, readOnly = false }: { caseId: string; initial: TimelineRow[]; readOnly?: boolean }) {
   const [items, setItems] = useState(initial);

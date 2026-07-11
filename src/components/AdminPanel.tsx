@@ -1,9 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { CaseRow } from "@/server/cases";
-import type { UserOption } from "@/server/backoffice";
-import type { OrderRow } from "@/server/plans";
+import type { CaseDTO as CaseRow,UserOptionDTO as UserOption,OrderDTO as OrderRow } from "@/lib/dto";
 
 export function AdminPanel({ cases, reviewers, orders }: { cases: CaseRow[]; reviewers: UserOption[]; orders: OrderRow[] }) {
   const [message, setMessage] = useState(""); const router = useRouter();
@@ -21,4 +19,3 @@ export function AdminPanel({ cases, reviewers, orders }: { cases: CaseRow[]; rev
     <h2>测试套餐订单</h2><div className="admin-table">{orders.length === 0 ? <p className="muted">暂无测试订单。</p> : orders.map(order => <article className="card" key={order.id}><div><span className="status neutral">{order.status}</span><h3>{order.planName}</h3><p className="muted">案件 {order.caseId} · 不涉及支付</p></div>{order.status === "PENDING_TEST_ACTIVATION" && <button className="button secondary" onClick={() => activate(order.id)}>管理员测试开通</button>}</article>)}</div>
   </div>;
 }
-

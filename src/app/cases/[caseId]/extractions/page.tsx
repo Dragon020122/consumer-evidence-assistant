@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExtractionReview } from "@/components/ExtractionReview";
+import { ExtractionReviewBoundary as ExtractionReview } from "@/components/DtoBoundaries";
 import { requirePageRole } from "@/server/page-access";
 import { getCaseForActor } from "@/server/cases";
 import { listExtractions } from "@/server/extraction";

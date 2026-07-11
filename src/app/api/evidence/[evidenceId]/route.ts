@@ -1,4 +1,5 @@
 import { getEnv } from "@/lib/env";
+import {toEvidenceFileDTO}from"@/lib/dto";
 import { errorResponse } from "@/lib/errors";
 import { assertSameOrigin } from "@/lib/security";
 import { requireSession } from "@/server/auth";
@@ -15,4 +16,4 @@ export async function DELETE(request: Request, context: { params: Promise<{ evid
   try { assertSameOrigin(request, getEnv().APP_URL); const actor = await requireSession(["USER", "ADMIN"]); const { evidenceId } = await context.params; await deleteEvidence(actor, evidenceId); return Response.json({ ok: true }); }
   catch (error) { return errorResponse(error); }
 }
-const patchSchema=z.object({originalName:z.string().trim().min(1).max(255),category:z.enum(evidenceCategories)});export async function PATCH(request:Request,context:{params:Promise<{evidenceId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["USER","ADMIN"]);return Response.json({evidence:updateEvidenceMetadata(actor,(await context.params).evidenceId,patchSchema.parse(await request.json()))});}catch(error){return errorResponse(error)}}
+const patchSchema=z.object({originalName:z.string().trim().min(1).max(255),category:z.enum(evidenceCategories)});export async function PATCH(request:Request,context:{params:Promise<{evidenceId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["USER","ADMIN"]);return Response.json({evidence:toEvidenceFileDTO(updateEvidenceMetadata(actor,(await context.params).evidenceId,patchSchema.parse(await request.json())))});}catch(error){return errorResponse(error)}}

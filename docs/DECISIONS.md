@@ -35,3 +35,11 @@
 ## ADR-009：演示模板幂等初始化与补偿清理
 
 演示案件以 `owner_id + demo_template_key` 唯一标识，并记录 `demo_setup_state`。只有案件、8 份通过普通上传校验的证据和 Mock 提取结果全部完成后才标为 `READY`；重复请求直接恢复 READY 案件。发现旧版 PARTIAL/FAILED 案件时只重建当前用户该模板。文件或提取中途失败时删除本次案件、数据库子记录和已写私有文件；环境、迁移、资产、存储和初始化错误使用稳定代码，不返回堆栈、绝对路径或敏感配置。
+
+## ADR-010：显式 Client DTO 边界
+
+Node SQLite 查询行使用 null prototype，不能直接作为 React Client Component props。所有案件、证据、提取、时间线、矩阵、缺口和生成文档必须经过 Zod 严格 DTO mapper；套餐、订单、复核员选项和管理员案件列表同样处理。DTO 显式转换日期、BigInt 和 Decimal，拒绝 Buffer，并移除 `storageKey`、摘要哈希等客户端不需要的内部字段。受保护文件继续只通过鉴权接口访问，不采用 `JSON.parse(JSON.stringify(...))` 规避类型问题。
+
+## ADR-011：开发 CSP 与生产 CSP 分离
+
+React/Next 开发调试需要 eval source map，因此仅 `NODE_ENV=development` 的 `script-src` 加入 `'unsafe-eval'`。生产和测试策略不包含该指令；原有同源、对象禁用、frame ancestors、表单和资源限制保持不变。修改 Next 配置后必须重启开发服务。

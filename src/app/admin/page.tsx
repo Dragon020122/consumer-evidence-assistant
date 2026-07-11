@@ -1,4 +1,4 @@
-import { AdminPanel } from "@/components/AdminPanel";
+import { AdminPanelBoundary as AdminPanel } from "@/components/DtoBoundaries";
 import { AccessNotice } from "@/components/AccessNotice";
 import { getSystemSummary, listAuditLogs, listReviewers } from "@/server/backoffice";
 import { listCasesForActor } from "@/server/cases";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { GeneratedRow } from "@/server/export";
+import type { GeneratedDocumentDTO as GeneratedRow } from "@/lib/dto";
 
 export function DownloadCenter({ caseId, initial, readOnly = false }: { caseId: string; initial: GeneratedRow[]; readOnly?: boolean }) {
   const [files, setFiles] = useState(initial);

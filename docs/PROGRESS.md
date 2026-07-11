@@ -41,6 +41,8 @@
 - 阶段 16 最终门禁：`npm run auth:doctor`、`npm run lint`、`npm run typecheck`、`npm run security:check`、`npm run test`、`npm run test:e2e`、`npm run build` 全部通过；全量为 19 文件/50 测试，独立 E2E 为 3 文件/5 测试，新增演示页面/API 路由已进入 Next.js 生产构建。未部署、未接入正式支付或生产服务。
 - 演示入口故障修复：真实环境确认旧 `demo-case-gym` 仅有 1 份证据和 1 条提取，原按钮只创建/返回案件记录，无法区分 READY 与半成品；迁移或环境未重新加载时还会落入通用错误页。新增 `prepaid-gym-v1` 唯一模板、初始化状态、完整一键载入+提取、失败补偿清理、稳定错误码、`demo:generate-assets`/`demo:seed`/`demo:doctor` 与专项故障注入测试。
 - 演示入口故障最终复验：应用 `003_demo_template_state.sql` 后，`demo:doctor` 首次准确报告 PARTIAL、证据 1/8；`demo:seed` 幂等修复为 READY、证据 8/8、提取 18 条，随后自检通过。真实 HTTP 登录、创建/恢复、案件页和提取页均为 200。专项测试 2 文件/9 测试、全量测试 20 文件/58 测试、独立 E2E 3 文件/5 测试以及 auth:doctor、lint、typecheck、security:check、build 全部通过。
+- Client DTO/CSP 修复：确认 Node SQLite 查询行的 prototype 为 null，首个错误边界是案件详情 Server Component → EvidenceList Client Component，并审计提取、时间线、矩阵、下载、套餐和管理员面板的同类边界。新增严格 DTO/mappers、敏感存储字段裁剪和环境化 CSP；数据库保持 1 个 READY 演示案件、8 份唯一证据、18 条提取、0 个数据库/文件孤儿，案件处于 PENDING_USER_CONFIRMATION 是等待用户确认 Mock 提取结果的正常状态。
+- DTO/CSP 最终复验：真实 Session 下 dashboard、案件详情、提取、时间线、矩阵均 HTTP 200，页面响应不再包含 plain-object 序列化错误；证据 API 仅返回 8 个前端字段且不含 storageKey/sha256。开发 CSP 含 unsafe-eval，生产策略专项测试确认不含。demo:doctor、auth:doctor、lint、typecheck、security:check、全量测试 21 文件/63 测试、独立 E2E 3 文件/5 测试和生产构建全部通过。
 
 ## 已知限制
 

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { extractionFieldLabels, fieldStateLabels } from "@/lib/labels";
-import type { ExtractionRow } from "@/server/extraction";
+import type { ExtractedFieldDTO as ExtractionRow } from "@/lib/dto";
 
 function valueOf(raw:string|null){if(raw===null)return null;try{return JSON.parse(raw)as string|number}catch{return null}}
 const confirmedStates=["CONFIRMED","MODIFIED","AI_CONFIRMED","USER_EDITED"];

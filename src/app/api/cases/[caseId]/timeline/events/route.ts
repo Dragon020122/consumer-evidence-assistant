@@ -1,3 +1,2 @@
-import { getEnv } from "@/lib/env";import { errorResponse } from "@/lib/errors";import { assertSameOrigin } from "@/lib/security";import { requireSession } from "@/server/auth";import { addTimelineEvent } from "@/server/timeline";
-export async function POST(request:Request,{params}:{params:Promise<{caseId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["USER","ADMIN"]);return Response.json({event:addTimelineEvent(actor,(await params).caseId,await request.json())},{status:201});}catch(error){return errorResponse(error)}}
-
+import{toTimelineEventDTO}from"@/lib/dto";import{getEnv}from"@/lib/env";import{errorResponse}from"@/lib/errors";import{assertSameOrigin}from"@/lib/security";import{requireSession}from"@/server/auth";import{addTimelineEvent}from"@/server/timeline";
+export async function POST(request:Request,{params}:{params:Promise<{caseId:string}>}){try{assertSameOrigin(request,getEnv().APP_URL);const actor=await requireSession(["USER","ADMIN"]);return Response.json({event:toTimelineEventDTO(addTimelineEvent(actor,(await params).caseId,await request.json()))},{status:201});}catch(error){return errorResponse(error)}}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseDetailsEditor } from "@/components/CaseDetailsEditor";
 import { DemoEvidenceTools } from "@/components/DemoEvidenceTools";
-import { EvidenceList } from "@/components/EvidenceList";
+import { EvidenceListBoundary as EvidenceList } from "@/components/DtoBoundaries";
 import { EvidenceUploader } from "@/components/EvidenceUploader";
 import { demoModeEnabled } from "@/lib/demo";
 import { normalizeDetails } from "@/lib/field-state";

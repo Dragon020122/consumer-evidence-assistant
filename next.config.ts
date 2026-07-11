@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
+import { contentSecurityPolicy } from "./src/lib/csp";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
   async headers() {
     const noStore=[{key:"Cache-Control",value:"private, no-store, max-age=0"}];
     return [{ source: "/(.*)", headers: [
-      { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" },
+      { key: "Content-Security-Policy", value: contentSecurityPolicy(process.env.NODE_ENV) },
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "no-referrer" },

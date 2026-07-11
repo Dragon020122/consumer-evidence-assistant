@@ -3,13 +3,13 @@ import { errorResponse } from "@/lib/errors";
 import { assertSameOrigin } from "@/lib/security";
 import { requireSession } from "@/server/auth";
 import { createCase, listCasesForActor } from "@/server/cases";
+import { toCaseDTO } from "@/lib/dto";
 
 export async function GET() {
-  try { const actor = await requireSession(); return Response.json({ cases: listCasesForActor(actor) }); }
+  try { const actor = await requireSession(); return Response.json({ cases: listCasesForActor(actor).map(toCaseDTO) }); }
   catch (error) { return errorResponse(error); }
 }
 export async function POST(request: Request) {
-  try { assertSameOrigin(request, getEnv().APP_URL); const actor = await requireSession(["USER", "ADMIN"]); return Response.json({ case: createCase(actor, await request.json()) }, { status: 201 }); }
+  try { assertSameOrigin(request, getEnv().APP_URL); const actor = await requireSession(["USER", "ADMIN"]); return Response.json({ case: toCaseDTO(createCase(actor, await request.json())) }, { status: 201 }); }
   catch (error) { return errorResponse(error); }
 }
-
