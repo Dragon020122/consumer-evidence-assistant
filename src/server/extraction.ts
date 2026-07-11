@@ -48,9 +48,9 @@ const fields = `id,case_id AS caseId,evidence_id AS evidenceId,field_name AS fie
 
 export async function extractCase(actor: SessionUser, caseId: string, adapter: ExtractionAdapter = new MockExtractionAdapter()): Promise<ExtractionRow[]> {
   const item = getCaseForActor(actor, caseId); if (actor.role !== "ADMIN" && item.ownerId !== actor.id) throw new AppError("FORBIDDEN", "只有案件所有者可以启动提取", 403);
-  const evidence = listEvidence(actor, caseId); if (!evidence.length) throw new AppError("NO_EVIDENCE", "请先上传证据", 409);
+  const evidence = listEvidence(actor, caseId); if (!evidence.length) throw new AppError("NO_EVIDENCE", "至少上传一份现有材料才能启动提取。请返回“上传证据”选择付款、沟通、合同或用户说明；不要求全部类别齐全。", 409);
   const db = getDb(); db.prepare("UPDATE cases SET status='EXTRACTING',updated_at=? WHERE id=?").run(new Date().toISOString(),caseId);
-  db.prepare("DELETE FROM extractions WHERE case_id=? AND state='PENDING'").run(caseId);
+  db.prepare("DELETE FROM extractions WHERE case_id=? AND state IN ('PENDING','AI_PENDING')").run(caseId);
   for (const file of evidence) {
     let text: string | null = null; if (file.mimeType === "text/plain") { const result = await readEvidence(actor,file.id); text = result.bytes.toString("utf8",0,100_000); if(getEnv().MODEL_REDACTION_ENABLED==="true")text=redactBeforeModel(text); }
     let payload: ExtractionPayload | null = null; let lastError: unknown;
@@ -58,7 +58,7 @@ export async function extractCase(actor: SessionUser, caseId: string, adapter: E
     if (!payload) { db.prepare(`INSERT INTO extractions (id,case_id,evidence_id,field_name,original_value_json,source_locator,confidence,needs_review,state,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`)
       .run(randomUUID(),caseId,file.id,"summary",null,"结构化校验失败",0,1,"MANUAL_REQUIRED",new Date().toISOString()); audit(actor,"EXTRACTION_VALIDATION_FAILED","EVIDENCE",file.id,"FAILED",{errorType:lastError instanceof Error?lastError.name:"unknown"}); continue; }
     for (const field of payload.fields) db.prepare(`INSERT INTO extractions (id,case_id,evidence_id,field_name,original_value_json,source_locator,confidence,needs_review,state,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`)
-      .run(randomUUID(),caseId,file.id,field.fieldName,field.value===null?null:JSON.stringify(field.value),`${field.sourcePageOrImage} · ${field.sourceLocator}`,field.confidence,field.needsHumanConfirmation?1:0,"PENDING",new Date().toISOString());
+      .run(randomUUID(),caseId,file.id,field.fieldName,field.value===null?null:JSON.stringify(field.value),`${field.sourcePageOrImage} · ${field.sourceLocator}`,field.confidence,field.needsHumanConfirmation?1:0,"AI_PENDING",new Date().toISOString());
   }
   db.prepare("UPDATE cases SET status='PENDING_USER_CONFIRMATION',updated_at=? WHERE id=?").run(new Date().toISOString(),caseId); audit(actor,"CASE_EXTRACTED","CASE",caseId,"SUCCESS",{provider:adapter.name,fileCount:evidence.length}); return listExtractions(actor,caseId);
 }
@@ -68,7 +68,7 @@ export function listExtractions(actor:SessionUser,caseId:string):ExtractionRow[]
 export function confirmExtraction(actor:SessionUser,extractionId:string,input:{action:"CONFIRM"|"MODIFY"|"DELETE"|"UNKNOWN";value?:string|number|null}):ExtractionRow{
   const row=getDb().prepare(`SELECT ${fields} FROM extractions WHERE id=?`).get(extractionId) as unknown as ExtractionRow|undefined;if(!row)throw new AppError("EXTRACTION_NOT_FOUND","提取结果不存在",404);
   const item=getCaseForActor(actor,row.caseId);if(actor.role!=="ADMIN"&&item.ownerId!==actor.id)throw new AppError("FORBIDDEN","只有案件所有者可以确认提取结果",403);
-  const state={CONFIRM:"CONFIRMED",MODIFY:"MODIFIED",DELETE:"DELETED",UNKNOWN:"UNKNOWN"}[input.action];let confirmed:string|null=null;
+  const state={CONFIRM:"AI_CONFIRMED",MODIFY:"USER_EDITED",DELETE:"DELETED",UNKNOWN:"UNABLE_TO_CONFIRM"}[input.action];let confirmed:string|null=null;
   if(input.action==="CONFIRM")confirmed=row.originalValueJson;if(input.action==="MODIFY"){if(input.value===undefined||input.value===null||String(input.value).length>2000)throw new AppError("INVALID_VALUE","请填写有效修正值",400);confirmed=JSON.stringify(input.value);}
   getDb().prepare("UPDATE extractions SET confirmed_value_json=?,state=?,confirmed_by=?,confirmed_at=? WHERE id=?").run(confirmed,state,actor.id,new Date().toISOString(),extractionId);
   audit(actor,"EXTRACTION_CONFIRMED","EXTRACTION",extractionId,"SUCCESS",{action:input.action});return getDb().prepare(`SELECT ${fields} FROM extractions WHERE id=?`).get(extractionId) as unknown as ExtractionRow;

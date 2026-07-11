@@ -1,0 +1,2 @@
+import type{ReactNode}from"react";import{requirePageRole}from"@/server/page-access";import{CaseWorkflow}from"@/components/CaseWorkflow";
+export const dynamic="force-dynamic";export default async function CaseLayout({children,params}:{children:ReactNode;params:Promise<{caseId:string}>}){const{caseId}=await params;const actor=await requirePageRole(["USER","REVIEWER","ADMIN"],`/cases/${caseId}`);return <>{actor.role==="USER"&&<CaseWorkflow actor={actor} caseId={caseId}/>}<div className="case-step-content">{children}</div></>}

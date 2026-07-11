@@ -9,6 +9,7 @@ import { safeStorageSegment, sha256 } from "@/lib/security";
 import type { SessionUser } from "@/server/auth";
 import { audit } from "@/server/audit";
 import { getCaseForActor } from "@/server/cases";
+import { refreshCaseEvidenceSupport } from "@/server/cases";
 
 const allowed: Record<string, { extensions: string[]; signatures?: number[][] }> = {
   "image/jpeg": { extensions: [".jpg", ".jpeg"], signatures: [[0xff, 0xd8, 0xff]] },
@@ -56,6 +57,7 @@ export async function storeEvidence(actor: SessionUser, caseId: string, file: Fi
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'UPLOADED', ?)`
     ).run(id, caseId, file.name.slice(0, 255), storageKey, file.type, file.size, digest, category, new Date().toISOString());
     db.prepare("UPDATE cases SET status = 'PENDING_EXTRACTION', updated_at = ? WHERE id = ?").run(new Date().toISOString(), caseId);
+    refreshCaseEvidenceSupport(caseId);
   } catch (error) { await rm(target, { force: true }); throw error; }
   audit(actor, "EVIDENCE_UPLOADED", "EVIDENCE", id, "SUCCESS", { caseId, mimeType: file.type, byteSize: file.size });
   return getEvidenceForActor(actor, id);
@@ -82,8 +84,11 @@ export async function deleteEvidence(actor: SessionUser, evidenceId: string): Pr
   const row = getEvidenceForActor(actor, evidenceId); const ownerCase = getCaseForActor(actor, row.caseId);
   if (actor.role !== "ADMIN" && ownerCase.ownerId !== actor.id) throw new AppError("FORBIDDEN", "只有案件所有者可以删除证据", 403);
   getDb().prepare("DELETE FROM evidence WHERE id = ?").run(evidenceId); await rm(absolutePath(row.storageKey), { force: true });
+  refreshCaseEvidenceSupport(row.caseId);
   audit(actor, "EVIDENCE_DELETED", "EVIDENCE", evidenceId, "SUCCESS", { caseId: row.caseId });
 }
+
+export function updateEvidenceMetadata(actor:SessionUser,evidenceId:string,input:{originalName:string;category:EvidenceCategory}):EvidenceRow{const row=getEvidenceForActor(actor,evidenceId);const item=getCaseForActor(actor,row.caseId);if(actor.role!=="ADMIN"&&item.ownerId!==actor.id)throw new AppError("FORBIDDEN","只有案件所有者可以修改证据信息",403);const category=evidenceCategorySchema.parse(input.category);const originalName=input.originalName.trim();if(originalName.length<1||originalName.length>255||/[\\/:*?"<>|]/.test(originalName))throw new AppError("INVALID_FILE_NAME","文件名称需为 1 至 255 个字符且不能包含路径字符",400);getDb().prepare("UPDATE evidence SET original_name=?,category=? WHERE id=?").run(originalName,category,evidenceId);refreshCaseEvidenceSupport(row.caseId);audit(actor,"EVIDENCE_METADATA_UPDATED","EVIDENCE",evidenceId,"SUCCESS",{caseId:row.caseId,category});return getEvidenceForActor(actor,evidenceId);}
 
 export async function deleteEvidenceStorageKeys(storageKeys: string[]): Promise<void> {
   for (const key of storageKeys) await rm(absolutePath(key), { force: true });

@@ -19,6 +19,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "auth:doctor": "tsx scripts/auth-doctor.ts",
+    "demo:assets": "tsx scripts/generate-demo-assets.ts",
     "db:reset": "tsx scripts/reset-demo.ts",
     "cleanup": "tsx scripts/cleanup-expired.ts",
     "security:check": "node scripts/security-check.mjs",
@@ -31,6 +32,7 @@
     "pdfkit": "0.19.1",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "sharp": "0.34.5",
     "zod": "4.4.3"
   },
   "devDependencies": {

@@ -12,6 +12,7 @@ copy .env.example .env.local
 npm run db:migrate
 npm run db:seed
 npm run auth:doctor
+npm run demo:assets
 npm run dev
 ```
 
@@ -30,6 +31,8 @@ npm run dev
 这些账号只可用于本地虚构数据。启动公开测试前必须更换三个密码和 `DEV_AUTH_SECRET`。种子同时创建 `demo-case-gym`（虚构健身年卡 2999 元案例）和四个不收款的测试套餐。
 
 登录后会按服务端 Session 中的角色进入不同首页：普通用户进入“我的案件”，人工复核员进入“复核工作台”，管理员进入“管理后台”。右上角账号菜单显示邮箱和中文角色名称，并通过服务端退出接口销毁 Session Cookie。角色无权访问的页面会在渲染表单前重定向到对应首页。
+
+`DEMO_MODE_ENABLED=true` 且非生产环境时，普通用户“我的案件”会显示折叠式演示测试工具。点击“使用演示案件体验完整流程”，再在案件页点击“一键载入全部演示证据”，即可载入仓库脚本生成的 8 份虚构 PNG/PDF/TXT。演示接口仍执行服务端环境、角色、所有权、文件签名、大小和摘要去重检查；生产环境强制拒绝开启。
 
 建议演示材料可新建 TXT 文件，内容全部使用虚构信息，例如：
 

@@ -6,6 +6,7 @@ const schema = z.object({
   PRIVATE_STORAGE_PATH: z.string().default("storage/private"),
   GENERATED_STORAGE_PATH: z.string().default("storage/generated"),
   DEV_AUTH_ENABLED: z.enum(["true", "false"]).default("false"),
+  DEMO_MODE_ENABLED: z.enum(["true", "false"]).default("false"),
   DEV_AUTH_SECRET: z.string().min(32).optional(),
   DEV_USER_PASSWORD: z.string().min(8).optional(),
   DEV_REVIEWER_PASSWORD: z.string().min(8).optional(),
@@ -28,6 +29,9 @@ export function getEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
   const value = schema.parse(source);
   if (value.NODE_ENV === "production" && value.DEV_AUTH_ENABLED === "true") {
     throw new Error("生产环境禁止启用开发登录");
+  }
+  if (value.NODE_ENV === "production" && value.DEMO_MODE_ENABLED === "true") {
+    throw new Error("生产环境禁止启用演示模式");
   }
   return value;
 }

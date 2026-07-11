@@ -1,22 +1,22 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CaseDetailsEditor } from "@/components/CaseDetailsEditor";
+import { DemoEvidenceTools } from "@/components/DemoEvidenceTools";
+import { EvidenceList } from "@/components/EvidenceList";
+import { EvidenceUploader } from "@/components/EvidenceUploader";
+import { demoModeEnabled } from "@/lib/demo";
+import { normalizeDetails } from "@/lib/field-state";
+import { caseStatusLabels } from "@/lib/labels";
 import { requirePageRole } from "@/server/page-access";
 import { getCaseForActor } from "@/server/cases";
 import { listEvidence } from "@/server/storage";
-import { EvidenceUploader } from "@/components/EvidenceUploader";
-import { caseStatusLabels, evidenceCategoryLabels, fieldStateLabels } from "@/lib/labels";
 
-const fieldLabels: Record<string,string> = { merchantLegalName:"商家主体名称",storeName:"门店名称",serviceName:"商品或服务",paymentAmountYuan:"支付金额（元）",paymentDate:"支付日期",orderOrContractNumber:"订单号或合同号",usedAmountOrCount:"已使用次数或金额",remainingAmountOrCount:"剩余次数或金额",firstRefundRequestDate:"首次提出退费日期",merchantResponse:"商家回复",desiredResolution:"用户具体诉求" };
 export const dynamic="force-dynamic";
-
-export default async function CasePage({ params }: { params:Promise<{caseId:string}> }) {
-  const {caseId}=await params;const user=await requirePageRole(["USER","REVIEWER","ADMIN"],`/cases/${caseId}`);
-  let item; try { item=getCaseForActor(user,caseId); } catch { notFound(); }
-  const evidence=listEvidence(user,caseId); const details=JSON.parse(item.detailsJson) as Record<string,{value:unknown;state:string}>;
-  return <div><div className="page-head"><div><div className="eyebrow">步骤 3 / 9 · {caseStatusLabels[item.status]??item.status}</div><h1 className="page-title">{item.title}</h1><p className="muted">案件编号 {item.id}</p></div><div className="compact-actions"><Link className="button secondary" href={`/cases/${caseId}/plans`}>测试套餐</Link>{(item.ownerId===user.id||user.role==="ADMIN")&&<Link className="button secondary" href={`/cases/${caseId}/delete`}>数据删除</Link>}<Link className="button secondary" href="/dashboard">返回工作台</Link></div></div>
-    <div className="workspace-grid"><section className="card"><h2>基础信息</h2><div className="detail-list">{Object.entries(details).map(([key,field])=><div key={key}><span className="muted">{fieldLabels[key]??key}</span><strong>{String(field.value??"未填写")}</strong><span className="status neutral">{fieldStateLabels[field.state]??field.state}</span></div>)}</div></section>
-      <section className="card"><h2>证据材料</h2>{item.ownerId===user.id||user.role==="ADMIN"?<EvidenceUploader caseId={caseId}/>:<p className="notice">复核员只能查看已分配案件，不能上传或修改原始证据。</p>}
-        {evidence.length===0?<div className="empty"><p>尚未上传材料。支持 JPG、PNG、WebP、PDF、TXT，单文件默认不超过 10MB。</p></div>:<><div className="file-list">{evidence.map(file=><a key={file.id} href={`/api/evidence/${file.id}`} target="_blank" rel="noreferrer"><strong>{file.originalName}</strong><span>{evidenceCategoryLabels[file.category]??file.category} · {(file.byteSize/1024).toFixed(1)} KB</span></a>)}</div><div className="actions"><Link className="button" href={`/cases/${caseId}/extractions`}>继续：提取与确认</Link></div></>}
-      </section></div>
+export default async function CasePage({params}:{params:Promise<{caseId:string}>}){
+  const{caseId}=await params;const user=await requirePageRole(["USER","REVIEWER","ADMIN"],`/cases/${caseId}`);let item;try{item=getCaseForActor(user,caseId)}catch{notFound()}const evidence=listEvidence(user,caseId);const details=normalizeDetails(JSON.parse(item.detailsJson));const categories=new Set(evidence.map(file=>file.category));const checks=[{label:"付款记录",done:categories.has("PAYMENT_ORDER"),why:"核对金额、日期和收款方",optional:false},{label:"商家名称或主体信息",done:categories.has("MERCHANT_STATUS")||categories.has("CONTRACT"),why:"区分门店、收款方和经营主体",optional:false},{label:"至少一份退费沟通",done:categories.has("REFUND_COMMUNICATION"),why:"核对诉求与商家回复",optional:false},{label:"合同或服务约定",done:categories.has("CONTRACT"),why:"补充服务期限和一般约定",optional:true},{label:"服务使用记录",done:categories.has("SERVICE_USAGE"),why:"说明已使用和剩余服务",optional:true},{label:"销售宣传或沟通",done:categories.has("PROMISE"),why:"保留购买前服务介绍",optional:true}];const minimum=checks.filter(x=>!x.optional);const completed=minimum.filter(x=>x.done).length;const canEdit=item.ownerId===user.id||user.role==="ADMIN";
+  return <div><div className="page-head"><div><div className="eyebrow">上传证据 · {caseStatusLabels[item.status]??item.status}</div><h1 className="page-title">{item.title}</h1><p className="muted">案件编号 {item.id}{Boolean(item.isDemo)?" · 全部内容均为虚构测试数据":""}</p></div><div className="compact-actions"><Link className="button secondary" href={`/cases/${caseId}/plans`}>测试套餐</Link>{canEdit&&<Link className="button secondary" href={`/cases/${caseId}/delete`}>数据删除</Link>}<Link className="button secondary" href={user.role==="USER"?"/dashboard":user.role==="REVIEWER"?"/review":"/admin"}>返回工作台</Link></div></div>
+    {completed<minimum.length&&<div className="notice warning"><strong>当前材料不完整，后续结果仅为初步整理版本。</strong><p>最低建议材料完成 {completed}/{minimum.length} 项，仍可进入提取、时间线和缺口页面；缺少的内容会降低事实核对和证据支持的完整性。</p></div>}
+    <section className="card checklist"><div className="section-head"><div><h2>本步骤检查清单</h2><p>最低建议材料完成 {completed}/{minimum.length} 项；可选材料可稍后补充。</p></div><span className="status neutral">{completed===minimum.length?"可以继续":"可以带缺口继续"}</span></div><div className="check-grid">{checks.map(check=><div key={check.label} className={check.done?"done":"missing"}><span>{check.done?"✓":"○"}</span><div><strong>{check.label}{check.optional?"（可选）":""}</strong><small>{check.why}{!check.done&&!check.optional?"；可暂时跳过，将在缺口清单中提示。":""}</small></div></div>)}</div></section>
+    <div className="workspace-grid"><section className="card"><CaseDetailsEditor caseId={caseId} initial={details} readOnly={!canEdit}/></section><section className="card"><div className="section-head"><div><h2>证据材料</h2><p>上传后先显示成功状态，再由 Mock 提取；图片/PDF 需要人工核对。</p></div><span className="status neutral">{evidence.length} 份</span></div>{canEdit?<><EvidenceUploader caseId={caseId}/>{demoModeEnabled()&&Boolean(item.isDemo)&&user.role==="USER"&&<DemoEvidenceTools caseId={caseId}/>}</>:<p className="notice">复核员只能查看已分配案件，不能上传或修改原始证据。</p>}<EvidenceList initial={evidence} readOnly={!canEdit}/><div className="actions"><Link className="button secondary" href="/dashboard">保存并稍后继续</Link><Link className="button" href={`/cases/${caseId}/extractions`}>下一步：提取与确认</Link></div></section></div>
   </div>;
 }

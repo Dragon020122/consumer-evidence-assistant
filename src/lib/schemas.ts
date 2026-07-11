@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { evidenceSupportStates, fieldStates } from "@/lib/field-state";
 
 export const roles = ["USER", "REVIEWER", "ADMIN"] as const;
 export type Role = (typeof roles)[number];
@@ -27,8 +28,8 @@ export const screeningResultSchema = z.object({
 export type ScreeningInput = z.infer<typeof screeningInputSchema>;
 export type ScreeningResult = z.infer<typeof screeningResultSchema>;
 
-export const fieldStateSchema = z.enum(["CONFIRMED", "PENDING", "UNKNOWN"]);
-const statedField = <T extends z.ZodType>(value: T) => z.object({ value: value.nullable(), state: fieldStateSchema });
+export const fieldStateSchema = z.enum([...fieldStates, "CONFIRMED", "PENDING", "UNKNOWN"]);
+const statedField = <T extends z.ZodType>(value: T) => z.object({ value: value.nullable(), state: fieldStateSchema, evidenceSupport:z.enum(evidenceSupportStates).optional(), savedAt:z.string().datetime().optional() });
 
 export const caseDetailsSchema = z.object({
   merchantLegalName: statedField(z.string().trim().max(200)),
@@ -57,4 +58,3 @@ export const evidenceCategories = [
 ] as const;
 export const evidenceCategorySchema = z.enum(evidenceCategories);
 export type EvidenceCategory = z.infer<typeof evidenceCategorySchema>;
-
