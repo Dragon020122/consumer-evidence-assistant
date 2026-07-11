@@ -6,6 +6,7 @@ import type { EvidenceCategory } from "@/lib/schemas";
 
 export const DEMO_MARK = "虚构测试材料｜仅用于产品演示｜不可用于真实投诉";
 export const DEMO_CASE_TITLE = "虚构测试案件｜星云健身天府店年卡材料整理";
+export const DEMO_TEMPLATE_KEY = "prepaid-gym-v1";
 
 export interface DemoAsset {
   id: string;

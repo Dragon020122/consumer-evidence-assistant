@@ -9,11 +9,11 @@ import { normalizeDetails, normalizeField, type EvidenceSupportState, type Field
 
 export interface CaseRow {
   id: string; ownerId: string; assignedReviewerId: string | null; title: string; disputeType: string; status: string;
-  eligibilityJson: string; detailsJson: string; timelineConfirmedAt: string | null; isDemo:number; expiresAt: string; createdAt: string; updatedAt: string;
+  eligibilityJson: string; detailsJson: string; timelineConfirmedAt: string | null; isDemo:number; demoTemplateKey:string|null;demoSetupState:string;expiresAt: string; createdAt: string; updatedAt: string;
 }
 
 const selectFields = `id, owner_id AS ownerId, assigned_reviewer_id AS assignedReviewerId, title, dispute_type AS disputeType,
- status, eligibility_json AS eligibilityJson, details_json AS detailsJson, timeline_confirmed_at AS timelineConfirmedAt, is_demo AS isDemo,
+ status, eligibility_json AS eligibilityJson, details_json AS detailsJson, timeline_confirmed_at AS timelineConfirmedAt, is_demo AS isDemo, demo_template_key AS demoTemplateKey, demo_setup_state AS demoSetupState,
  expires_at AS expiresAt, created_at AS createdAt, updated_at AS updatedAt`;
 
 export function createCase(owner: SessionUser, raw: CreateCaseInput): CaseRow {

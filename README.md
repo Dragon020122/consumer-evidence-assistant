@@ -11,8 +11,10 @@ npm install
 copy .env.example .env.local
 npm run db:migrate
 npm run db:seed
+npm run demo:generate-assets
+npm run demo:seed
 npm run auth:doctor
-npm run demo:assets
+npm run demo:doctor
 npm run dev
 ```
 
@@ -33,6 +35,8 @@ npm run dev
 登录后会按服务端 Session 中的角色进入不同首页：普通用户进入“我的案件”，人工复核员进入“复核工作台”，管理员进入“管理后台”。右上角账号菜单显示邮箱和中文角色名称，并通过服务端退出接口销毁 Session Cookie。角色无权访问的页面会在渲染表单前重定向到对应首页。
 
 `DEMO_MODE_ENABLED=true` 且非生产环境时，普通用户“我的案件”会显示折叠式演示测试工具。点击“使用演示案件体验完整流程”，再在案件页点击“一键载入全部演示证据”，即可载入仓库脚本生成的 8 份虚构 PNG/PDF/TXT。演示接口仍执行服务端环境、角色、所有权、文件签名、大小和摘要去重检查；生产环境强制拒绝开启。
+
+修改 `.env.local`、执行新数据库迁移或重新生成演示资料后，必须停止并重新运行 `npm run dev`，使服务端进程重新加载环境与路由。`npm run demo:doctor` 只检查环境、迁移、账号、存储、8 份资料和 Mock 配置，不输出密码或密钥；`npm run demo:seed` 幂等创建或修复 `prepaid-gym-v1` 模板，只处理普通演示账号自己的演示案件。
 
 建议演示材料可新建 TXT 文件，内容全部使用虚构信息，例如：
 
