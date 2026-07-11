@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { postLoginPath } from "@/lib/access";
+import { roles, type Role } from "@/lib/schemas";
 
-export function LoginForm() {
+export function LoginForm({returnTo}:{returnTo?:string}) {
   const [error, setError] = useState(""); const [loading, setLoading] = useState(false); const router = useRouter();
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setLoading(true); setError(""); const form = new FormData(event.currentTarget);
     const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
-    const data = await response.json(); setLoading(false); if (!response.ok) return setError(data.error?.message ?? "登录失败"); router.push("/dashboard"); router.refresh();
+    const data = await response.json(); setLoading(false); if (!response.ok) return setError(data.error?.message ?? "登录失败"); const role=roles.includes(data.user?.role as Role)?data.user.role as Role:null;if(!role)return setError("账号角色配置无效，请联系测试管理员");router.replace(postLoginPath(role,returnTo));router.refresh();
   }
   return <form className="form card" onSubmit={submit}>
     <label>开发账号邮箱<input name="email" type="email" required autoComplete="username" placeholder="user@demo.local" /></label>
@@ -16,4 +18,3 @@ export function LoginForm() {
     <button className="button" disabled={loading}>{loading ? "正在验证…" : "登录测试环境"}</button>
   </form>;
 }
-

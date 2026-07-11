@@ -42,6 +42,10 @@ describe("案件与私有证据集成", () => {
     expect(() => getCaseForActor(other, item.id)).toThrow("案件不存在或无权访问");
   });
 
+  it("复核员不能创建案件",()=>{
+    expect(()=>createCase({...owner,id:"reviewer-only",role:"REVIEWER"},caseInput())).toThrow("当前角色不能创建案件");
+  });
+
   it("保存、查重并删除案件所有者的证据", async () => {
     const item = createCase(owner, caseInput());
     const bytes = new Uint8Array([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a,1,2,3]);
@@ -53,4 +57,3 @@ describe("案件与私有证据集成", () => {
     expect(listEvidence(owner, item.id)).toHaveLength(0);
   });
 });
-

@@ -1,0 +1,10 @@
+import { beforeAll, describe, expect, it } from "vitest";
+import { closeDb, getDb, migrate } from "@/lib/db";
+import { navigationForRole, pageAccessRedirect, postLoginPath } from "@/lib/access";
+import { hashPassword } from "@/lib/security";
+import { authenticate, deleteSessionCookie } from "@/server/auth";
+
+const accounts=[{id:"role-user",email:"user@role.local",role:"USER",password:"role-user-password",home:"/dashboard"},{id:"role-reviewer",email:"reviewer@role.local",role:"REVIEWER",password:"role-reviewer-password",home:"/review"},{id:"role-admin",email:"admin@role.local",role:"ADMIN",password:"role-admin-password",home:"/admin"}]as const;
+beforeAll(()=>{closeDb();migrate();const db=getDb();for(const account of accounts)db.prepare("INSERT INTO users(id,email,display_name,role,password_hash,created_at)VALUES(?,?,?,?,?,?)").run(account.id,account.email,`演示${account.role}`,account.role,hashPassword(account.password,`${account.id}-salt`),new Date().toISOString());});
+describe("三角色登录、跳转、切换与退出",()=>{it("每种真实数据库角色登录后得到独立导航和默认首页",async()=>{for(const account of accounts){const user=await authenticate(account.email,account.password);expect(postLoginPath(user.role)).toBe(account.home);const nav=navigationForRole(user.role).map(item=>item.label);if(user.role==="USER")expect(nav).toEqual(expect.arrayContaining(["开始整理","我的案件"]));if(user.role==="REVIEWER")expect(nav).toEqual(expect.arrayContaining(["复核工作台"]));if(user.role==="ADMIN")expect(nav).toEqual(expect.arrayContaining(["管理后台"]));}});it("切换账号不会沿用上一个角色导航",async()=>{const user=await authenticate(accounts[0].email,accounts[0].password);const reviewer=await authenticate(accounts[1].email,accounts[1].password);expect(navigationForRole(user.role).map(x=>x.label)).toContain("开始整理");expect(navigationForRole(reviewer.role).map(x=>x.label)).not.toContain("开始整理");});it("退出清除 Cookie 后受保护页回到登录",()=>{const deleted:string[]=[];deleteSessionCookie({delete:name=>deleted.push(name)});expect(deleted).toEqual(["evidence_session"]);expect(pageAccessRedirect(null,["REVIEWER","ADMIN"],"/review")).toBe("/login?next=%2Freview");});});
+

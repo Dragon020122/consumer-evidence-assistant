@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { getSessionUser } from "@/server/auth";
+import { notFound } from "next/navigation";
+import { requirePageRole } from "@/server/page-access";
 import { getCaseForActor } from "@/server/cases";
 import { listEvidence } from "@/server/storage";
 import { EvidenceUploader } from "@/components/EvidenceUploader";
@@ -10,7 +10,7 @@ const fieldLabels: Record<string,string> = { merchantLegalName:"商家主体名�
 export const dynamic="force-dynamic";
 
 export default async function CasePage({ params }: { params:Promise<{caseId:string}> }) {
-  const user=await getSessionUser(); if(!user) redirect("/login"); const {caseId}=await params;
+  const {caseId}=await params;const user=await requirePageRole(["USER","REVIEWER","ADMIN"],`/cases/${caseId}`);
   let item; try { item=getCaseForActor(user,caseId); } catch { notFound(); }
   const evidence=listEvidence(user,caseId); const details=JSON.parse(item.detailsJson) as Record<string,{value:unknown;state:string}>;
   return <div><div className="page-head"><div><div className="eyebrow">步骤 3 / 9 · {caseStatusLabels[item.status]??item.status}</div><h1 className="page-title">{item.title}</h1><p className="muted">案件编号 {item.id}</p></div><div className="compact-actions"><Link className="button secondary" href={`/cases/${caseId}/plans`}>测试套餐</Link>{(item.ownerId===user.id||user.role==="ADMIN")&&<Link className="button secondary" href={`/cases/${caseId}/delete`}>数据删除</Link>}<Link className="button secondary" href="/dashboard">返回工作台</Link></div></div>

@@ -7,6 +7,7 @@ import { signValue, verifyPassword } from "@/lib/security";
 import { roles, type Role } from "@/lib/schemas";
 
 const COOKIE_NAME = "evidence_session";
+interface DeletableCookieStore { delete(name:string):void }
 
 export interface SessionUser { id: string; email: string; displayName: string; role: Role }
 interface SessionPayload { userId: string; expiresAt: number }
@@ -59,8 +60,10 @@ export async function createSession(user: SessionUser): Promise<void> {
 }
 
 export async function clearSession(): Promise<void> {
-  (await cookies()).delete(COOKIE_NAME);
+  deleteSessionCookie(await cookies());
 }
+
+export function deleteSessionCookie(store:DeletableCookieStore):void{store.delete(COOKIE_NAME);}
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   const value = (await cookies()).get(COOKIE_NAME)?.value;

@@ -1,3 +1,28 @@
-"use client";import{useState}from"react";import type{GeneratedRow}from"@/server/export";
-export function DownloadCenter({caseId,initial}:{caseId:string;initial:GeneratedRow[]}){const[files,setFiles]=useState(initial);const[message,setMessage]=useState("");const[busy,setBusy]=useState(false);async function generate(){setBusy(true);setMessage("正在排版中文 PDF 并打包原始文件，请勿关闭页面…");const response=await fetch(`/api/cases/${caseId}/exports`,{method:"POST"});const data=await response.json();setBusy(false);if(!response.ok)return setMessage(data.error?.message??"生成失败，请重试");setFiles(data.files);setMessage("9 个文件已生成。下载前请再次确认内容与用途。");}return <div><p className="notice">所有文件均为草稿。ZIP 包含原始文件副本，请只保存到你信任的设备，不要公开分享链接。</p><div className="actions"><button className="button" onClick={generate} disabled={busy}>{busy?"正在生成…":files.length?"重新生成全部文件":"生成 PDF 与 ZIP"}</button></div>{message&&<p aria-live="polite" className="notice">{message}</p>}{files.length>0&&<div className="download-list">{files.map(file=><a className="card" key={file.id} href={`/api/generated/${file.id}`}><strong>{file.fileName}</strong><span>{(file.byteSize/1024).toFixed(1)} KB · 私有授权下载</span></a>)}</div>}</div>}
+"use client";
 
+import { useState } from "react";
+import type { GeneratedRow } from "@/server/export";
+
+export function DownloadCenter({ caseId, initial, readOnly = false }: { caseId: string; initial: GeneratedRow[]; readOnly?: boolean }) {
+  const [files, setFiles] = useState(initial);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function generate() {
+    setBusy(true);
+    setMessage("正在排版中文 PDF 并打包原始文件，请勿关闭页面…");
+    const response = await fetch(`/api/cases/${caseId}/exports`, { method: "POST" });
+    const data = await response.json();
+    setBusy(false);
+    if (!response.ok) return setMessage(data.error?.message ?? "生成失败，请重试");
+    setFiles(data.files);
+    setMessage("9 个文件已生成。下载前请再次确认内容与用途。");
+  }
+
+  return <div>
+    <p className="notice">所有文件均为草稿。ZIP 包含原始文件副本，请只保存到你信任的设备，不要公开分享链接。</p>
+    {readOnly ? <p className="notice">人工复核员可查看已有导出文件，但不能代替用户生成或重新生成材料。</p> : <div className="actions"><button className="button" onClick={generate} disabled={busy}>{busy ? "正在生成…" : files.length ? "重新生成全部文件" : "生成 PDF 与 ZIP"}</button></div>}
+    {message && <p aria-live="polite" className="notice">{message}</p>}
+    {files.length > 0 && <div className="download-list">{files.map((file) => <a className="card" key={file.id} href={`/api/generated/${file.id}`}><strong>{file.fileName}</strong><span>{(file.byteSize / 1024).toFixed(1)} KB · 私有授权下载</span></a>)}</div>}
+  </div>;
+}
