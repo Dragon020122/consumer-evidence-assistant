@@ -18,7 +18,8 @@ const schema = z.object({
   PDF_FONT_PATH: z.string().optional(),
   RETENTION_DAYS: z.coerce.number().int().min(1).max(365).default(30),
   MAX_UPLOAD_BYTES: z.coerce.number().int().min(1024).max(25 * 1024 * 1024).default(10 * 1024 * 1024),
-  MAX_FILES_PER_CASE: z.coerce.number().int().min(1).max(100).default(30)
+  MAX_FILES_PER_CASE: z.coerce.number().int().min(1).max(100).default(30),
+  MAX_EXPORT_SOURCE_BYTES: z.coerce.number().int().min(1024).max(500 * 1024 * 1024).default(100 * 1024 * 1024)
 });
 
 export type AppEnv = z.infer<typeof schema>;

@@ -84,3 +84,7 @@ export async function deleteEvidence(actor: SessionUser, evidenceId: string): Pr
   getDb().prepare("DELETE FROM evidence WHERE id = ?").run(evidenceId); await rm(absolutePath(row.storageKey), { force: true });
   audit(actor, "EVIDENCE_DELETED", "EVIDENCE", evidenceId, "SUCCESS", { caseId: row.caseId });
 }
+
+export async function deleteEvidenceStorageKeys(storageKeys: string[]): Promise<void> {
+  for (const key of storageKeys) await rm(absolutePath(key), { force: true });
+}

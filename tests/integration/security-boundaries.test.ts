@@ -1,0 +1,15 @@
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdir, rm, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { closeDb, getDb, migrate } from "@/lib/db";
+import { evaluateScreening } from "@/lib/screening";
+import type { SessionUser } from "@/server/auth";
+import { createCase, getCaseForActor } from "@/server/cases";
+import { readGenerated } from "@/server/export";
+import { getEvidenceForActor, storeEvidence } from "@/server/storage";
+
+const alice:SessionUser={id:"alice",email:"alice@test",displayName:"甲",role:"USER"};const bob:SessionUser={id:"bob",email:"bob@test",displayName:"乙",role:"USER"};
+function input(title="安全测试案件"){const f=<T>(value:T)=>({value,state:"CONFIRMED"as const});return{title,disputeType:"GYM"as const,screening:evaluateScreening({disputeType:"GYM",amountYuan:1,isConsumerService:true,merchantOperating:"YES",hasPaymentRecord:true,hasContractOrChat:true,desiredOutcome:"整理",hasNegotiated:false,excludedArea:"NONE"}),details:{merchantLegalName:f("虚构商家'; DROP TABLE users;--"),storeName:f("<script>alert(1)</script>"),serviceName:f("测试"),paymentAmountYuan:f(1),paymentDate:f("2026-01-01"),orderOrContractNumber:f("D"),usedAmountOrCount:f("0"),remainingAmountOrCount:f("1"),firstRefundRequestDate:f("2026-01-02"),merchantResponse:f("无"),desiredResolution:f("整理")}}}
+beforeEach(()=>{closeDb();migrate();for(const user of[alice,bob])getDb().prepare("INSERT INTO users(id,email,display_name,role,password_hash,created_at)VALUES(?,?,?,?,?,?)").run(user.id,user.email,user.displayName,user.role,"x",new Date().toISOString())});afterEach(async()=>{closeDb();await Promise.all([rm(".data/test-storage",{recursive:true,force:true}),rm(".data/test-generated",{recursive:true,force:true})])});
+describe("资源边界与注入防护",()=>{it("阻止跨用户案件、证据和生成文件访问",async()=>{const item=createCase(alice,input());const evidence=await storeEvidence(alice,item.id,new File(["虚构"],"../../public/escape.txt",{type:"text/plain"}),"OTHER");expect(evidence.storageKey).not.toContain("..");expect(()=>getCaseForActor(bob,item.id)).toThrow("案件不存在或无权访问");expect(()=>getEvidenceForActor(bob,evidence.id)).toThrow("案件不存在或无权访问");const key=`${item.id}/generated`;const path=join(".data/test-generated",key);await mkdir(dirname(path),{recursive:true});await writeFile(path,"pdf");getDb().prepare("INSERT INTO generated_files(id,case_id,kind,storage_key,byte_size,created_at)VALUES('secret-file',?,'CASE_SUMMARY',?,3,?)").run(item.id,key,new Date().toISOString());await expect(readGenerated(bob,"secret-file")).rejects.toThrow("案件不存在或无权访问");});it("参数化查询保留注入字符串且数据库结构完好",()=>{const item=createCase(alice,input("<img src=x onerror=alert(1)>"));expect(getCaseForActor(alice,item.id).title).toContain("onerror");expect((getDb().prepare("SELECT COUNT(*) AS count FROM users").get()as{count:number}).count).toBe(2);expect(JSON.parse(item.detailsJson).merchantLegalName.value).toContain("DROP TABLE");});it("拒绝超长资源 ID，避免审计放大",()=>expect(()=>getCaseForActor(alice,"x".repeat(1000))).toThrow("案件不存在或无权访问"));});
+

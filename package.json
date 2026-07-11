@@ -20,6 +20,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "tsx scripts/reset-demo.ts",
     "cleanup": "tsx scripts/cleanup-expired.ts",
+    "security:check": "node scripts/security-check.mjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
@@ -44,5 +45,8 @@
     "tsx": "4.23.0",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
+  },
+  "overrides": {
+    "postcss": "8.5.16"
   }
 }

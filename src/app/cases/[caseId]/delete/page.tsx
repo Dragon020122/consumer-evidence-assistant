@@ -1,0 +1,3 @@
+import{notFound,redirect}from"next/navigation";import{DeleteCaseForm}from"@/components/DeleteCaseForm";import{getSessionUser}from"@/server/auth";import{getCaseForActor}from"@/server/cases";
+export const dynamic="force-dynamic";export default async function DeleteCasePage({params}:{params:Promise<{caseId:string}>}){const actor=await getSessionUser();if(!actor)redirect("/login");const{caseId}=await params;let item;try{item=getCaseForActor(actor,caseId)}catch{notFound()}if(actor.role!=="ADMIN"&&item.ownerId!==actor.id)notFound();return <div className="narrow"><div className="eyebrow">数据删除</div><h1 className="page-title">永久删除案件及全部材料</h1><DeleteCaseForm caseId={caseId} title={item.title}/></div>}
+

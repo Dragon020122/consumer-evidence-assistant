@@ -34,3 +34,10 @@ export function assertSameOrigin(request: Request, appUrl: string): void {
   }
 }
 
+export function redactBeforeModel(value: string): string {
+  return value
+    .replace(/(?<!\d)\d{17}[\dXx](?!\d)/g, "[身份证号已脱敏]")
+    .replace(/(?<!\d)\d{16,19}(?!\d)/g, "[银行卡号已脱敏]")
+    .replace(/(?<!\d)1[3-9]\d{9}(?!\d)/g, "[手机号已脱敏]")
+    .replace(/(?:家庭住址|住址|地址)[:：]\s*[^\n]{6,200}/g, "地址：[详细地址已脱敏]");
+}

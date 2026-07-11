@@ -1,3 +1,4 @@
+import "./load-env";
 import { getDb, migrate, closeDb } from "../src/lib/db";
 import { getEnv } from "../src/lib/env";
 import { hashPassword } from "../src/lib/security";

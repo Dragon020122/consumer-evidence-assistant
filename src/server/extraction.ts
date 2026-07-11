@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { extractionPayloadSchema, locate, parseDate, parseMoney, type ExtractionPayload } from "@/lib/extraction";
+import { redactBeforeModel } from "@/lib/security";
 import type { SessionUser } from "@/server/auth";
 import { audit } from "@/server/audit";
 import { getCaseForActor } from "@/server/cases";
@@ -51,7 +52,7 @@ export async function extractCase(actor: SessionUser, caseId: string, adapter: E
   const db = getDb(); db.prepare("UPDATE cases SET status='EXTRACTING',updated_at=? WHERE id=?").run(new Date().toISOString(),caseId);
   db.prepare("DELETE FROM extractions WHERE case_id=? AND state='PENDING'").run(caseId);
   for (const file of evidence) {
-    let text: string | null = null; if (file.mimeType === "text/plain") { const result = await readEvidence(actor,file.id); text = result.bytes.toString("utf8",0,100_000); }
+    let text: string | null = null; if (file.mimeType === "text/plain") { const result = await readEvidence(actor,file.id); text = result.bytes.toString("utf8",0,100_000); if(getEnv().MODEL_REDACTION_ENABLED==="true")text=redactBeforeModel(text); }
     let payload: ExtractionPayload | null = null; let lastError: unknown;
     for (let attempt=0;attempt<=getEnv().MODEL_MAX_RETRIES;attempt++) { try { payload=extractionPayloadSchema.parse(await adapter.extract({evidence:file,text})); break; } catch(error){lastError=error;} }
     if (!payload) { db.prepare(`INSERT INTO extractions (id,case_id,evidence_id,field_name,original_value_json,source_locator,confidence,needs_review,state,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`)
@@ -72,4 +73,3 @@ export function confirmExtraction(actor:SessionUser,extractionId:string,input:{a
   getDb().prepare("UPDATE extractions SET confirmed_value_json=?,state=?,confirmed_by=?,confirmed_at=? WHERE id=?").run(confirmed,state,actor.id,new Date().toISOString(),extractionId);
   audit(actor,"EXTRACTION_CONFIRMED","EXTRACTION",extractionId,"SUCCESS",{action:input.action});return getDb().prepare(`SELECT ${fields} FROM extractions WHERE id=?`).get(extractionId) as unknown as ExtractionRow;
 }
-

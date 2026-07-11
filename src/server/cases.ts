@@ -36,6 +36,7 @@ export function listCasesForActor(actor: SessionUser): CaseRow[] {
 }
 
 export function getCaseForActor(actor: SessionUser, caseId: string): CaseRow {
+  if (!/^[A-Za-z0-9-]{1,100}$/.test(caseId)) throw new AppError("CASE_NOT_FOUND", "案件不存在或无权访问", 404);
   const row = getDb().prepare(`SELECT ${selectFields} FROM cases WHERE id = ?`).get(caseId) as unknown as CaseRow | undefined;
   const allowed = row && (actor.role === "ADMIN" || row.ownerId === actor.id || (actor.role === "REVIEWER" && row.assignedReviewerId === actor.id));
   if (!allowed) {
