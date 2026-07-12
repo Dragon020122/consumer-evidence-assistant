@@ -1,6 +1,6 @@
 # 测试报告
 
-执行日期：2026-07-12；环境：Windows 本地、Node.js 24、npm 11、Node SQLite、Mock OCR/提取、虚构演示数据。
+执行日期与时间：2026-07-12 23:01（Asia/Shanghai）；环境：Windows 本地、Node.js 24、npm 11、Node SQLite、Mock OCR/提取、虚构演示数据。
 
 | 命令 | 结果 | 通过数量 / 说明 |
 | --- | --- | --- |
@@ -22,3 +22,7 @@
 ## 已知警告
 
 Node 24 的 `node:sqlite` 仍输出实验性 API 警告；它是本地测试版的已知限制，不是测试失败。正式环境必须使用经过评审的生产数据库方案。
+
+## 干净启动验证
+
+使用当前提交创建全新系统临时目录与隔离 npm 缓存，复制 `.env.example` 为 `.env.local` 后，依次运行 `npm ci`、`db:migrate`、`db:seed`、`demo:generate-assets`、`demo:seed`、`auth:doctor`、`demo:doctor` 和 `build`，全部通过。该验证未读取或改动当前开发数据库。首次验证尝试受 Windows PowerShell 的二进制 tar 管道编码影响而失败，改用 ZIP 归档后成功；这不是项目启动缺陷。
