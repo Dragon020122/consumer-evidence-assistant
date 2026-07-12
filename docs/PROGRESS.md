@@ -48,6 +48,7 @@
 - Client DTO/CSP 修复：确认 Node SQLite 查询行的 prototype 为 null，首个错误边界是案件详情 Server Component → EvidenceList Client Component，并审计提取、时间线、矩阵、下载、套餐和管理员面板的同类边界。新增严格 DTO/mappers、敏感存储字段裁剪和环境化 CSP；数据库保持 1 个 READY 演示案件、8 份唯一证据、18 条提取、0 个数据库/文件孤儿，案件处于 PENDING_USER_CONFIRMATION 是等待用户确认 Mock 提取结果的正常状态。
 - DTO/CSP 最终复验：真实 Session 下 dashboard、案件详情、提取、时间线、矩阵均 HTTP 200，页面响应不再包含 plain-object 序列化错误；证据 API 仅返回 8 个前端字段且不含 storageKey/sha256。开发 CSP 含 unsafe-eval，生产策略专项测试确认不含。demo:doctor、auth:doctor、lint、typecheck、security:check、全量测试 21 文件/63 测试、独立 E2E 3 文件/5 测试和生产构建全部通过。
 - 阶段 17 阶段性复验：`npm run typecheck` 通过；单元 11 文件/35 测试、集成 7 文件/23 测试、E2E 3 文件/6 测试全部通过。真实 HTTP 联调确认：首次案例 8 份证据/18 项提取/3 条时间线/2 项矩阵/9 文件；重置后第二次 8/18/2/1/9；退出后 Cookie 容器为空，重新登录恢复同一案例；管理员分配 200、复核说明 201、复核员创建案件 403，管理员审计页显示 `REVIEWER_ASSIGNED` 和 `REVIEW_NOTE_ADDED`。
+- 阶段 17 最终门禁：`npm run auth:doctor`、`npm run demo:doctor`、`npm run lint`、`npm run typecheck`、`npm run test`（21 文件/64 测试）、`npm run test:integration`（7 文件/23 测试）、`npm run test:e2e`（3 文件/6 测试）和 `npm run build` 全部通过。生产构建包含新的演示提取和单条时间线确认路由；未部署、未触碰正式环境或真实数据。
 
 ## 已知限制
 
