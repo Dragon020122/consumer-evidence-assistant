@@ -1,5 +1,19 @@
 # 架构说明
 
+> 本文描述 `v1.0.0-mvp` 的本地作品集架构。当前使用 Node SQLite，不使用 Prisma；生产化前必须重新审查。
+
+```mermaid
+flowchart TB
+  Browser[浏览器] --> App[Next.js App Router]
+  App --> Guard[认证 / RBAC / 所有权 / 分配校验]
+  Guard --> Services[案件、证据、提取、时间线、导出服务]
+  Services --> SQLite[(Node SQLite + SQL migrations)]
+  Services --> Storage[私有本地存储适配层]
+  Services --> Extract[Mock / OCR / LLM 提取适配层]
+  Services --> Output[PDF / ZIP 导出]
+  Services --> Audit[脱敏审计与删除]
+```
+
 ## 结构
 
 - Next.js App Router：移动端页面、Route Handlers 和 Server Actions。
@@ -21,4 +35,3 @@
 ## 生产迁移
 
 正式上线前需将 SQLite 仓储实现替换为 PostgreSQL，执行并发/事务回归；本地存储替换为私有 S3 兼容存储；接入真实 OCR/模型前完成供应商数据处理评估与脱敏验证。接口边界保持不变。
-

@@ -1,0 +1,21 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="640" fill="#0B1715"/>
+  <circle cx="1120" cy="110" r="280" fill="#173E35" opacity="0.7"/>
+  <circle cx="1080" cy="540" r="240" fill="#134C42" opacity="0.45"/>
+  <rect x="72" y="68" width="180" height="38" rx="19" fill="#DFF2E9"/>
+  <text x="96" y="94" fill="#176044" font-family="Arial, sans-serif" font-size="20" font-weight="700">v1.0.0-mvp</text>
+  <text x="72" y="190" fill="white" font-family="Arial, sans-serif" font-size="58" font-weight="700">AI消费纠纷证据整理助手</text>
+  <text x="72" y="240" fill="#B9C9C4" font-family="Arial, sans-serif" font-size="25">AI Consumer Dispute Evidence Organizer</text>
+  <text x="72" y="316" fill="#E4F3EF" font-family="Arial, sans-serif" font-size="28" font-weight="600">Evidence  →  Timeline  →  Evidence Matrix  →  Document Pack</text>
+  <rect x="72" y="382" width="300" height="74" rx="14" fill="#15332C" stroke="#3E7868"/>
+  <text x="96" y="428" fill="#DFF2E9" font-family="Arial, sans-serif" font-size="26" font-weight="700">Human-in-the-loop</text>
+  <text x="72" y="530" fill="#A7BBB4" font-family="Arial, sans-serif" font-size="22">仅使用虚构演示材料 · 仅用于材料整理 · 不构成法律意见</text>
+  <g transform="translate(920 252)">
+    <rect width="216" height="248" rx="20" fill="#F5FBF8"/>
+    <rect x="24" y="28" width="168" height="18" rx="9" fill="#CAE6DA"/>
+    <rect x="24" y="68" width="128" height="12" rx="6" fill="#9CC6B6"/>
+    <rect x="24" y="100" width="168" height="46" rx="10" fill="#DFF2E9"/>
+    <rect x="24" y="164" width="168" height="18" rx="9" fill="#CAE6DA"/>
+    <rect x="24" y="198" width="112" height="12" rx="6" fill="#9CC6B6"/>
+  </g>
+</svg>

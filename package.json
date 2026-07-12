@@ -1,6 +1,6 @@
 {
   "name": "prepaid-service-refund",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "engines": {
     "node": ">=22.5.0"
@@ -23,6 +23,7 @@
     "demo:generate-assets": "tsx scripts/generate-demo-assets.ts",
     "demo:seed": "tsx scripts/demo-seed.ts",
     "demo:doctor": "tsx scripts/demo-doctor.ts",
+    "assets:social-preview": "node scripts/generate-social-preview.mjs",
     "db:reset": "tsx scripts/reset-demo.ts",
     "cleanup": "tsx scripts/cleanup-expired.ts",
     "security:check": "node scripts/security-check.mjs",
