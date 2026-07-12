@@ -40,6 +40,30 @@ flowchart LR
 - 6 份中文 PDF 与 3 个 ZIP 材料包；所有内容都是“草稿，请核对”。
 - 私有文件访问、审计摘要与级联数据删除。
 
+## 产品截图（全部为虚构演示数据）
+
+<p align="center">
+  <img src="docs/assets/screenshots/01_cases-dashboard.jpg" alt="普通用户的演示案件工作台" width="49%" />
+  <img src="docs/assets/screenshots/02_evidence-upload.jpg" alt="案件证据列表与材料管理" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/assets/screenshots/03_extraction-confirmation.jpg" alt="18 项提取结果确认状态" width="49%" />
+  <img src="docs/assets/screenshots/04_timeline.jpg" alt="带证据回链的事件时间线" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/assets/screenshots/05_evidence-matrix.jpg" alt="事实—证据矩阵" width="49%" />
+  <img src="docs/assets/screenshots/06_download-center.jpg" alt="受保护的 PDF 和 ZIP 下载中心" width="49%" />
+</p>
+
+移动端验证：
+
+<p align="center">
+  <img src="docs/assets/screenshots/07_mobile-workflow.jpg" alt="移动端八步工作流" width="31%" />
+  <img src="docs/assets/screenshots/08_mobile-evidence.jpg" alt="移动端证据列表" width="31%" />
+</p>
+
+截图展示的是 `user@demo.local` 的虚构演示数据；未包含密码、本地路径、真实个人信息或真实争议材料。
+
 ## AI 工作流
 
 ```mermaid
@@ -159,4 +183,4 @@ npm run build
 
 ## 许可
 
-本仓库暂未附带开源许可证。公开前请由维护者决定采用 MIT License，或暂不添加许可证而仅作为公开作品展示。
+本仓库暂不附带开源许可证，仅作为公开求职作品展示。除适用法律另有规定外，公开查看不等同于获得复制、修改或再分发授权。

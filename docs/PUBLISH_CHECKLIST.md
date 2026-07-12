@@ -11,9 +11,9 @@
 ## 发布前由维护者完成
 
 - [ ] 再次运行 `git status --ignored --short`，确认不含本地环境或私有材料。
-- [ ] 决定许可证：**A. MIT License**（允许使用、修改与分发）或 **B. 暂不添加许可证**（公开查看但默认不授予复用权）。
+- [x] 许可证决定：**B. 暂不添加许可证**；本仓库仅作为公开求职作品展示，默认不授予他人复制、修改或再分发权利。
 - [ ] 阅读 [GitHub 仓库设置](GITHUB_REPOSITORY_SETUP.md)，在 GitHub 设置 Description、Topics、Social Preview、Secret Scanning、Push Protection、Dependabot Alerts。
-- [ ] 按 [截图指南](SCREENSHOT_GUIDE.md) 检查或补拍展示素材。
+- [x] 已检查并加入 6 张桌面端与 2 张移动端虚构演示截图；README 已展示核心页面。
 - [ ] 如需视频，按 [录屏脚本](DEMO_RECORDING_SCRIPT.md) 人工录制，不展示密码或本地路径。
 - [ ] 审阅 `SECURITY.md` 后再推送；不要在 Issue 中接收真实争议材料。
 

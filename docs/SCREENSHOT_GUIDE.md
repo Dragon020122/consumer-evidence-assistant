@@ -10,13 +10,13 @@
 
 | 文件名 | 页面 | 状态与范围 |
 | --- | --- | --- |
-| `01_cases-dashboard.png` | `/dashboard` | USER；显示演示案件卡片和八步入口 |
-| `02_evidence-upload.png` | `/cases/{caseId}` | 显示证据列表、材料检查清单与虚构水印 |
-| `03_extraction-confirmation.png` | `/cases/{caseId}/extractions` | 显示 18 项汇总和来源定位 |
-| `04_timeline.png` | `/cases/{caseId}/timeline` | 至少一条已确认事件和证据回链 |
-| `05_evidence-matrix.png` | `/cases/{caseId}/matrix` | 显示事实—证据关系 |
-| `06_download-center.png` | `/cases/{caseId}/downloads` | 显示生成文件，不点开真实下载内容 |
-| `07_mobile-workflow.png` | `/cases/{caseId}/timeline` | 390px 宽，八步导航与提示 |
-| `08_mobile-evidence.png` | `/cases/{caseId}` | 390px 宽，证据卡片与上传区域 |
+| `01_cases-dashboard.jpg` | `/dashboard` | USER；显示演示案件卡片和八步入口 |
+| `02_evidence-upload.jpg` | `/cases/{caseId}` | 显示证据列表、材料检查清单与虚构水印 |
+| `03_extraction-confirmation.jpg` | `/cases/{caseId}/extractions` | 显示 18 项汇总和来源定位 |
+| `04_timeline.jpg` | `/cases/{caseId}/timeline` | 至少一条已确认事件和证据回链 |
+| `05_evidence-matrix.jpg` | `/cases/{caseId}/matrix` | 显示事实—证据关系 |
+| `06_download-center.jpg` | `/cases/{caseId}/downloads` | 显示生成文件，不点开真实下载内容 |
+| `07_mobile-workflow.jpg` | `/cases/{caseId}/timeline` | 390px 宽，八步导航与提示 |
+| `08_mobile-evidence.jpg` | `/cases/{caseId}` | 390px 宽，证据卡片与上传区域 |
 
-保存到 `docs/assets/screenshots/`，以 PNG 压缩后提交。不要截取登录时的密码输入框。
+保存到 `docs/assets/screenshots/`，以经过压缩的 PNG 或 JPEG 提交。不要截取登录时的密码输入框。
