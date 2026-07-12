@@ -2,6 +2,10 @@
 
 ## 当前状态
 
+- 阶段 17 核心闭环联调完成：真实本地 Session 下保留的 `prepaid-gym-v1` 演示案件为 1 个，包含 8 份唯一虚构证据、18 项 Mock 提取；此前“0/18 已处理”是 UI 将 `AI_PENDING`/`MANUAL_REQUIRED` 直接当作未开始、且多个页面各自推测流程状态所致，并非演示初始化失败。
+- 阶段 17 已建立唯一服务端八步派生工作流：页面、导航和关键服务均以相同汇总数据计算 `NOT_STARTED`、`IN_PROGRESS`、`NEEDS_CONFIRMATION`、`NEEDS_SUPPLEMENT`、`CONFLICT`、`COMPLETED`。时间线以至少一条已确认事件解锁矩阵和草稿；矩阵生成前第 7 步不会显示完成；缺口仍是软提醒。
+- 阶段 17 体验修复完成：提取页显示总数、已确认、待确认、用户修改、无法确认和冲突计数；时间线前置不足时有返回提取、查看证据和稍后继续入口；开发演示案件新增服务端双重守卫的“重新生成提取结果”和“一键确认全部”操作，均只作用于当前 USER 自己的虚构演示案件。
+- 阶段 17 真实联调完成：普通用户连续三次完成或恢复流程；管理员正常分配复核员并在审计页查看操作；复核员仅访问已分配案件、提交复核说明且创建案件接口被拒绝；退出响应删除 Session Cookie。PDF/ZIP 由真实接口生成 9 个受保护文件。
 - 阶段 16 审计完成：记录演示数据、字段状态、上传体验、软阻断、八步导航和 E2E 覆盖缺口；确认现有服务端角色、所有权、分配、文件校验与私有下载边界应原样保留。详见 `docs/UX_AUDIT.md` 与 ADR-006 至 ADR-008。
 - 阶段 16 实现完成：增加非生产双重守卫的 `DEMO_MODE_ENABLED`、可重复生成的 6 PNG/1 PDF/1 TXT、当前用户演示案件创建/恢复/隔离重置、单份/全部证据载入、字段七态与证据支持五态、基础信息自动保存、八步派生导航、最低材料清单、上传处理反馈/预览/改分类/重命名/删除替换，以及不完整草稿标记。
 - 2026-07-11：完成空仓库初始审计，确认无既有代码、Git 历史、未提交变更或敏感数据。
@@ -43,6 +47,7 @@
 - 演示入口故障最终复验：应用 `003_demo_template_state.sql` 后，`demo:doctor` 首次准确报告 PARTIAL、证据 1/8；`demo:seed` 幂等修复为 READY、证据 8/8、提取 18 条，随后自检通过。真实 HTTP 登录、创建/恢复、案件页和提取页均为 200。专项测试 2 文件/9 测试、全量测试 20 文件/58 测试、独立 E2E 3 文件/5 测试以及 auth:doctor、lint、typecheck、security:check、build 全部通过。
 - Client DTO/CSP 修复：确认 Node SQLite 查询行的 prototype 为 null，首个错误边界是案件详情 Server Component → EvidenceList Client Component，并审计提取、时间线、矩阵、下载、套餐和管理员面板的同类边界。新增严格 DTO/mappers、敏感存储字段裁剪和环境化 CSP；数据库保持 1 个 READY 演示案件、8 份唯一证据、18 条提取、0 个数据库/文件孤儿，案件处于 PENDING_USER_CONFIRMATION 是等待用户确认 Mock 提取结果的正常状态。
 - DTO/CSP 最终复验：真实 Session 下 dashboard、案件详情、提取、时间线、矩阵均 HTTP 200，页面响应不再包含 plain-object 序列化错误；证据 API 仅返回 8 个前端字段且不含 storageKey/sha256。开发 CSP 含 unsafe-eval，生产策略专项测试确认不含。demo:doctor、auth:doctor、lint、typecheck、security:check、全量测试 21 文件/63 测试、独立 E2E 3 文件/5 测试和生产构建全部通过。
+- 阶段 17 阶段性复验：`npm run typecheck` 通过；单元 11 文件/35 测试、集成 7 文件/23 测试、E2E 3 文件/6 测试全部通过。真实 HTTP 联调确认：首次案例 8 份证据/18 项提取/3 条时间线/2 项矩阵/9 文件；重置后第二次 8/18/2/1/9；退出后 Cookie 容器为空，重新登录恢复同一案例；管理员分配 200、复核说明 201、复核员创建案件 403，管理员审计页显示 `REVIEWER_ASSIGNED` 和 `REVIEW_NOTE_ADDED`。
 
 ## 已知限制
 

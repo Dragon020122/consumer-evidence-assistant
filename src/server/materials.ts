@@ -14,8 +14,8 @@ const labels:Record<string,string>={merchantLegalName:"商家主体",storeName:"
 function neutral(value:string):string{return value.replace(/诈骗|欺诈|违法|恶意/g,"[需核对的评价性表述]");}
 
 export function buildMaterials(actor:SessionUser,caseId:string):MaterialBundle{
-  const item=getCaseForActor(actor,caseId);if(!item.timelineConfirmedAt)throw new AppError("TIMELINE_NOT_CONFIRMED","至少需要一条已确认时间线才能生成草稿。请先到“确认时间线”补充或确认事件；材料类别不齐可以暂时跳过，导出会标记为材料不完整。",409);
-  const details=normalizeDetails(JSON.parse(item.detailsJson));const evidence=listEvidence(actor,caseId);const extractions=listExtractions(actor,caseId);const timeline=listTimeline(actor,caseId).filter(x=>x.isConfirmed);const matrix=listMatrix(actor,caseId);const gaps=detectMaterialGaps(evidence,extractions,timeline,details);
+  const item=getCaseForActor(actor,caseId);const confirmedTimeline=listTimeline(actor,caseId).filter(x=>x.isConfirmed);if(!confirmedTimeline.length)throw new AppError("TIMELINE_NOT_CONFIRMED","至少需要一条已确认时间线才能生成草稿。请先到“确认时间线”补充或确认事件；材料类别不齐可以暂时跳过，导出会标记为材料不完整。",409);
+  const details=normalizeDetails(JSON.parse(item.detailsJson));const evidence=listEvidence(actor,caseId);const extractions=listExtractions(actor,caseId);const timeline=confirmedTimeline;const matrix=listMatrix(actor,caseId);const gaps=detectMaterialGaps(evidence,extractions,timeline,details);
   const detailLines=Object.entries(labels).map(([key,label])=>`${label}：${isConfirmedField(details[key]?.state)&&details[key]?.value!==null?neutral(String(details[key].value)):"待确认"}`);
   const timelineLines=timeline.map((event,index)=>`${index+1}. ${event.eventDate??"日期待确认"}｜${neutral(event.description)}｜${event.isUserStatement?"用户陈述":`证据 ${event.evidenceIds.map(id=>evidence.findIndex(x=>x.id===id)+1).join("、")}`}`);
   const evidenceLines=evidence.map((file,index)=>`${index+1}. ${file.originalName}｜${file.category}｜文件ID ${file.id}｜对应事实请见矩阵`);

@@ -1,2 +1,10 @@
-import type{SessionUser}from"@/server/auth";import{deriveWorkflow}from"@/lib/workflow";import{normalizeDetails,isConfirmedField}from"@/lib/field-state";import{detectMaterialGaps}from"@/lib/gaps";import{getCaseForActor}from"@/server/cases";import{listEvidence}from"@/server/storage";import{listExtractions}from"@/server/extraction";import{listTimeline}from"@/server/timeline";import{listMatrix}from"@/server/matrix";import{listGenerated}from"@/server/export";import{WorkflowNav}from"@/components/WorkflowNav";
-export function CaseWorkflow({actor,caseId}:{actor:SessionUser;caseId:string}){const item=getCaseForActor(actor,caseId);const details=normalizeDetails(JSON.parse(item.detailsJson));const evidence=listEvidence(actor,caseId);const extractions=listExtractions(actor,caseId);const timeline=listTimeline(actor,caseId);const matrix=listMatrix(actor,caseId);const gaps=detectMaterialGaps(evidence,extractions,timeline,details);const steps=deriveWorkflow(caseId,{fieldCount:Object.keys(details).length,confirmedFieldCount:Object.values(details).filter(x=>isConfirmedField(x.state)).length,fieldConflictCount:Object.values(details).filter(x=>x.state==="CONFLICT").length,evidenceCount:evidence.length,evidenceCategories:[...new Set(evidence.map(x=>x.category))],extractionCount:extractions.length,pendingExtractionCount:extractions.filter(x=>["PENDING","AI_PENDING","MANUAL_REQUIRED"].includes(x.state)).length,timelineCount:timeline.length,timelineConfirmed:Boolean(item.timelineConfirmedAt),matrixCount:matrix.length,priorityGapCount:gaps.filter(x=>x.priority==="PRIORITY").length,exportCount:listGenerated(actor,caseId).length});return <WorkflowNav steps={steps} isDemo={Boolean(item.isDemo)}/>}
+import type { SessionUser } from "@/server/auth";
+import { getCaseForActor } from "@/server/cases";
+import { getCaseWorkflowState } from "@/server/workflow";
+import { WorkflowNav } from "@/components/WorkflowNav";
+
+export function CaseWorkflow({ actor, caseId }: { actor: SessionUser; caseId: string }) {
+  const item = getCaseForActor(actor, caseId);
+  const { steps } = getCaseWorkflowState(actor, caseId);
+  return <WorkflowNav steps={steps} isDemo={Boolean(item.isDemo)} />;
+}

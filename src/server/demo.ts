@@ -5,7 +5,9 @@ import { assertDemoMode, DEMO_CASE_TITLE, DEMO_TEMPLATE_KEY, demoAssetPath, demo
 import type { SessionUser } from "@/server/auth";
 import { createCase, getCaseForActor, listCasesForActor, type CaseRow } from "@/server/cases";
 import { deleteCaseData } from "@/server/deletion";
-import { extractCase, listExtractions } from "@/server/extraction";
+import { confirmExtraction, extractCase, listExtractions, type ExtractionRow } from "@/server/extraction";
+import { audit } from "@/server/audit";
+import { deleteGeneratedStorageKeys, listGenerated } from "@/server/export";
 import { deleteEvidence, listEvidence, storeEvidence, validateUpload, type EvidenceRow } from "@/server/storage";
 
 interface PreparedAsset { asset:DemoAsset;bytes:Buffer }
@@ -31,3 +33,48 @@ export async function createOrRestoreDemoCase(actor:SessionUser,deps:DemoProvisi
 export async function resetMyDemoCase(actor:SessionUser,deps:DemoProvisionDependencies={}):Promise<CaseRow>{requireDemoUser(actor);const existing=getMyDemoCase(actor);if(existing)await deleteCaseData(actor,existing.id);return createOrRestoreDemoCase(actor,deps);}
 export async function loadDemoEvidence(actor:SessionUser,caseId:string,assetIds:string[]=demoAssets.map(x=>x.id)):Promise<EvidenceRow[]>{requireDemoUser(actor);assertDemoSchema();const item=getCaseForActor(actor,caseId);if(!item.isDemo||item.ownerId!==actor.id)throw new AppError("NOT_DEMO_CASE","只能向自己的演示案件载入演示材料",403);const selected=demoAssets.filter(asset=>assetIds.includes(asset.id));if(!selected.length)throw new AppError("NO_DEMO_ASSET","请选择至少一份演示材料",400);const prepared=await prepareAssets(asset=>readFile(demoAssetPath(asset.fileName)));const byId=new Map(prepared.map(x=>[x.asset.id,x]));const existing=new Set(listEvidence(actor,caseId).map(x=>x.originalName));for(const asset of selected){if(existing.has(asset.fileName))continue;const preparedAsset=byId.get(asset.id)!;try{await storeEvidence(actor,caseId,new File([new Uint8Array(preparedAsset.bytes)],asset.fileName,{type:asset.mimeType}),asset.category);}catch(error){if(error instanceof AppError)throw error;throw new AppError("STORAGE_UNAVAILABLE","本地私有存储暂不可用，请检查目录权限后重试。",503);}}return listEvidence(actor,caseId);}
 export async function clearDemoEvidence(actor:SessionUser,caseId:string):Promise<void>{requireDemoUser(actor);assertDemoSchema();const item=getCaseForActor(actor,caseId);if(!item.isDemo||item.ownerId!==actor.id)throw new AppError("NOT_DEMO_CASE","只能清空自己的演示案件材料",403);for(const file of listEvidence(actor,caseId))await deleteEvidence(actor,file.id);getDb().prepare("UPDATE cases SET demo_setup_state='PARTIAL' WHERE id=?").run(caseId);}
+
+function requireOwnedDemoCase(actor: SessionUser, caseId: string): CaseRow {
+  requireDemoUser(actor);
+  assertDemoSchema();
+  const item = getCaseForActor(actor, caseId);
+  if (!item.isDemo || item.ownerId !== actor.id) throw new AppError("NOT_DEMO_CASE", "只能操作自己的演示案件", 403);
+  return item;
+}
+
+/** Regenerates only the current user's demo extraction data and dependent drafts. */
+export async function regenerateDemoExtractions(actor: SessionUser, caseId: string): Promise<ExtractionRow[]> {
+  const item = requireOwnedDemoCase(actor, caseId);
+  if (listEvidence(actor, caseId).length !== demoAssets.length) throw new AppError("DEMO_ASSET_MISSING", "演示案件资料尚不完整，请先载入全部 8 份演示证据。", 409);
+  const generated = listGenerated(actor, caseId);
+  try {
+    await deleteGeneratedStorageKeys(generated.map((file) => file.storageKey));
+    withTransaction((db) => {
+      db.prepare("DELETE FROM generated_files WHERE case_id=?").run(caseId);
+      db.prepare("DELETE FROM matrix_items WHERE case_id=?").run(caseId);
+      db.prepare("DELETE FROM timeline_events WHERE case_id=?").run(caseId);
+      db.prepare("DELETE FROM extractions WHERE case_id=?").run(caseId);
+      db.prepare("UPDATE cases SET timeline_confirmed_at=NULL,status='PENDING_USER_CONFIRMATION',demo_setup_state='READY',updated_at=? WHERE id=?").run(new Date().toISOString(), caseId);
+    });
+    const rows = await extractCase(actor, caseId);
+    audit(actor, "DEMO_EXTRACTIONS_REGENERATED", "CASE", item.id, "SUCCESS", { extractionCount: rows.length });
+    return rows;
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError("DEMO_SEED_FAILED", "演示提取结果重新生成失败；原始演示证据已保留，可安全重试。", 500);
+  }
+}
+
+/** A development convenience only: resolve every demo extraction through normal confirmation logic. */
+export function confirmAllDemoExtractions(actor: SessionUser, caseId: string): ExtractionRow[] {
+  const item = requireOwnedDemoCase(actor, caseId);
+  const rows = listExtractions(actor, caseId);
+  if (!rows.length) throw new AppError("NO_EXTRACTIONS", "尚未生成演示提取结果，请先重新生成。", 409);
+  for (const row of rows) {
+    if (!["PENDING", "AI_PENDING", "MANUAL_REQUIRED"].includes(row.state)) continue;
+    confirmExtraction(actor, row.id, { action: row.originalValueJson === null ? "UNKNOWN" : "CONFIRM" });
+  }
+  const resolved = listExtractions(actor, caseId);
+  audit(actor, "DEMO_EXTRACTIONS_CONFIRMED", "CASE", item.id, "SUCCESS", { extractionCount: resolved.length });
+  return resolved;
+}
