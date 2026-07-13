@@ -1,6 +1,7 @@
 # 实施进度
 
 ## 当前状态
+- 阶段 20 CI PDF 字体兼容修复：定位 GitHub Actions 使用的 Linux `NotoSansCJK-Regular.ttc` 字体集合被 PDFKit 作为集合对象加载，缺少 `createSubset()` 而使三个真实 PDF 导出测试失败。新增统一 `pdf-font` 适配层和项目内 Noto Sans SC 单字体 OTF（SIL OFL 1.1），移除 Windows/Linux/macOS 系统字体探测与 CI 字体包安装；同时将 Node 24 约束统一至 `package.json`、`.nvmrc`、`.node-version`、README 和 CI，并升级 `actions/checkout`、`actions/setup-node` 至 v5。已在干净 `npm ci` 后通过 lint、typecheck、全量测试（22 文件/69 测试）、集成测试（7/23）、E2E（3/6）和生产构建；待提交并推送 main 后由 GitHub Actions 复验。
 
 - 阶段 18 公开作品集封装完成：项目定位冻结为“AI消费纠纷证据整理助手 / AI Consumer Dispute Evidence Organizer，v1.0.0-mvp”，未新增业务功能、未部署、未推送。新增公开安全审计、作品集 README、案例复盘、AI/隐私/测试/面试/发布文档、GitHub Actions 与 Dependabot、社交预览 PNG；历史实施计划、UX 审计和旧交付报告已迁入 `docs/archive/`。
 - 阶段 18 安全与新用户复验：仅 `.env.example` 被跟踪；本地环境、SQLite、日志、缓存、私有存储和导出物均被忽略；可达与不可达 Git 对象未命中常见真实密钥模式，`npm audit --omit=dev --audit-level=moderate` 为 0 漏洞，项目安全脚本通过。隔离临时目录从当前提交执行 `npm ci` 至演示自检和生产构建均通过。浏览器自动截图受企业策略阻断 localhost，未绕过；已提供截图与录屏手册。

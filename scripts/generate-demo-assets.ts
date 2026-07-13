@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import PDFDocument from "pdfkit";
 import sharp from "sharp";
 import { DEMO_MARK, demoAssets } from "../src/lib/demo";
+import { registerPdfFont } from "../src/server/pdf-font";
 
 const output = join(process.cwd(), "demo-assets", "prepaid-gym-case");
 const details: Record<string, string[]> = {
@@ -22,18 +22,12 @@ function svg(title: string, lines: string[]): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#f4f1e8"/><rect x="38" y="38" width="1124" height="724" rx="28" fill="#fff" stroke="#1b6b51" stroke-width="4"/><text x="82" y="125" font-size="24" fill="#b34d27" font-weight="700">${escapeXml(DEMO_MARK)}</text><text x="82" y="195" font-size="44" fill="#173f32" font-weight="700">${escapeXml(title)}</text>${body}<text x="82" y="720" font-size="22" fill="#5b6b65">所有人物、主体、编号和交易均为虚构，仅用于本地产品测试。</text></svg>`;
 }
 
-function fontPath(): string {
-  const candidates = ["C:/Windows/Fonts/NotoSansSC-VF.ttf", "C:/Windows/Fonts/Deng.ttf", "C:/Windows/Fonts/msyh.ttc", "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", "/System/Library/Fonts/PingFang.ttc"];
-  const found = candidates.find(existsSync);
-  if (!found) throw new Error("未找到可生成中文演示 PDF 的字体");
-  return found;
-}
-
 async function createAgreement(path: string): Promise<void> {
   const bytes = await new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({ size:"A4", margins:{top:54,bottom:54,left:54,right:54} }); const chunks: Buffer[] = [];
     doc.on("data", (chunk) => chunks.push(Buffer.from(chunk))); doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject);
-    doc.font(fontPath()).fillColor("#b34d27").fontSize(11).text(DEMO_MARK).moveDown();
+    registerPdfFont(doc);
+    doc.fillColor("#b34d27").fontSize(11).text(DEMO_MARK).moveDown();
     doc.fillColor("#173f32").fontSize(20).text("健身年卡服务协议（虚构演示）").moveDown();
     const lines = ["合同编号：DEMO-CONTRACT-001", "商家主体：星云健康管理有限公司（虚构）", "门店名称：星云健身天府店（虚构）", "服务内容：健身年卡，器械区使用及依门店规则预约团课", "支付金额：2999元", "服务期限：2026年5月15日至2027年5月14日", "一般退费说明：用户可向门店提出终止服务与退费协商申请，具体处理以双方核对材料和协商结果为准。", "本材料不构成真实合同，不包含违法认定或确定处理承诺。"];
     doc.fillColor("#17211d").fontSize(12); for (const line of lines) doc.text(line, {lineGap:8}).moveDown(.5); doc.end();

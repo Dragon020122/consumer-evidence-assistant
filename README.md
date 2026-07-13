@@ -121,7 +121,7 @@ flowchart TB
 
 ## 本地运行
 
-要求：Node.js 24（最低 22.5）与 npm 11。Linux CI 需安装 `fonts-noto-cjk`；Windows 本地演示已验证。
+要求：Node.js 24 与 npm 11（`.nvmrc`、`.node-version` 和 GitHub Actions 均固定为 24）。中文 PDF 使用仓库内的 Noto Sans SC 单字体 OTF，因此不依赖 Windows、macOS 或 Linux 系统字体。
 
 ```bash
 npm ci
@@ -184,3 +184,5 @@ npm run build
 ## 许可
 
 本仓库暂不附带开源许可证，仅作为公开求职作品展示。除适用法律另有规定外，公开查看不等同于获得复制、修改或再分发授权。
+
+PDF 嵌入字体 Noto Sans SC Regular 依据 SIL Open Font License 1.1 分发；来源与完整许可证见 [第三方组件说明](THIRD_PARTY_NOTICES.md)。

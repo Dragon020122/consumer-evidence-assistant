@@ -1,6 +1,10 @@
 # 测试报告
 
-执行日期与时间：2026-07-12 23:01（Asia/Shanghai）；环境：Windows 本地、Node.js 24、npm 11、Node SQLite、Mock OCR/提取、虚构演示数据。
+最近验证：2026-07-13（Asia/Shanghai）；环境：Windows 本地、Node.js 24、npm 11、Node SQLite、Mock OCR/提取、虚构演示数据。
+
+## CI PDF 字体兼容修复（2026-07-13）
+
+GitHub Actions 的 Ubuntu 环境曾自动选择 `NotoSansCJK-Regular.ttc`。PDFKit 将未指定字体名的 TTC 解析为字体集合对象，该对象没有嵌入子集所需的 `createSubset()`，因此三个真实 PDF 导出测试失败。现已改为仓库内受 SIL OFL 1.1 许可的 `assets/fonts/NotoSansSC-Regular.otf`，并在 PDFKit 注册前使用 fontkit 预检单字体和 `createSubset()` 能力；开发、测试和 CI 不再探测系统字体。新增真实 PDF 回归测试覆盖中文案件摘要、时间线和事实—证据矩阵，以及字体缺失错误。
 
 | 命令 | 结果 | 通过数量 / 说明 |
 | --- | --- | --- |
@@ -8,7 +12,7 @@
 | `npm run demo:doctor` | 通过 | 开发模式、迁移、8/8 资产、8 份证据、18 项提取、私有存储与 Mock 配置正常 |
 | `npm run lint` | 通过 | ESLint 无错误 |
 | `npm run typecheck` | 通过 | `tsc --noEmit` 无错误 |
-| `npm run test` | 通过 | 21 文件 / 64 测试 |
+| `npm run test` | 通过 | 22 文件 / 69 测试（含真实跨平台 PDF 字体回归） |
 | `npm run test:integration` | 通过 | 7 文件 / 23 测试 |
 | `npm run test:e2e` | 通过 | 3 文件 / 6 测试 |
 | `npm run build` | 通过 | Next.js 生产构建完成 |

@@ -16,7 +16,6 @@ const schema = z.object({
   OCR_PROVIDER: z.enum(["mock", "external"]).default("mock"),
   MODEL_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
   MODEL_REDACTION_ENABLED: z.enum(["true", "false"]).default("true"),
-  PDF_FONT_PATH: z.string().optional(),
   RETENTION_DAYS: z.coerce.number().int().min(1).max(365).default(30),
   MAX_UPLOAD_BYTES: z.coerce.number().int().min(1024).max(25 * 1024 * 1024).default(10 * 1024 * 1024),
   MAX_FILES_PER_CASE: z.coerce.number().int().min(1).max(100).default(30),

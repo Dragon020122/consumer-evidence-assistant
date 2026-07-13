@@ -22,7 +22,7 @@ flowchart TB
 - 仓储/服务层：权限、案件、证据、提取、生成、删除逻辑与页面解耦。
 - StorageAdapter：测试版私有本地文件系统，预留 S3 兼容实现。
 - ExtractionAdapter：Mock 为默认实现，预留 OCR/模型提供商适配器。
-- ExportAdapter：生成中文 PDF 与 ZIP；字体路径可配置。
+- ExportAdapter：生成中文 PDF 与 ZIP；统一加载仓库内的 Noto Sans SC 单字体 OTF，避免操作系统字体和 TTC 字体集合差异。
 
 ## 信任边界
 

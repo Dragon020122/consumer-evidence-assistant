@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=24.0.0 <25"
   },
   "scripts": {
     "dev": "next dev",
@@ -34,6 +34,7 @@
     "jszip": "3.10.1",
     "next": "16.2.10",
     "pdfkit": "0.19.1",
+    "fontkit": "2.0.4",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "sharp": "0.34.5",
